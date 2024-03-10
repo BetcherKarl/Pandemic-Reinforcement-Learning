@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Airlift",
+        "description": "Move any 1` pawn to any city. Get permission before moving another player's pawn."
+    },
+    {
+        "name": "Government Grant",
+        "description": "Add a research station to any city (no city card needed)."
+    },
+    {
+        "name": "One Quiet Night",
+        "description": "Skip the next infect cities step (do not flip over any infection cards)."
+    },
+    {
+        "name": "Resilient Population",
+        "description": "Remove any 1 card in the infection discard pile from the game. You may play this between the infect and intensify steps of an epidemic."
+    },
+    {
+        "name": "Forecast",
+        "description": "Draw, look at, and rearrange the top 6 cards of the infection draw pile. Put them back on top."
+    }
+]

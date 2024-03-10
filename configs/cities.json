@@ -1,0 +1,290 @@
+[
+    {
+        "name": "Algiers",
+        "color": "black",
+        "population": 2946000,
+        "neighbors": ["Madrid", "Paris", "Istanbul", "Cairo"]
+    },
+    {
+        "name": "Atlanta",
+        "color": "blue",
+        "population": 4715000,
+        "neighbors": ["Chicago", "Washington", "Miami"]
+    },
+    {
+        "name": "Baghdad",
+        "color": "black",
+        "population": 6204000,
+        "neighbors": ["Tehran", "Istanbul", "Cairo", "Riyadh", "Karachi"]
+    },
+    {
+        "name": "Bangkok",
+        "color": "red",
+        "population": 7151000,
+        "neighbors": ["Kolkata", "Chennai", "Jakarta", "Ho Chi Minh City", "Hong Kong"]
+    },
+    {
+        "name": "Beijing",
+        "color": "red",
+        "population": 17311000,
+        "neighbors": ["Seoul", "Shanghai"]
+    },
+    {
+        "name": "Bogotá",
+        "color": "yellow",
+        "population": 8702000,
+        "neighbors": ["Mexico City", "Miami", "Lima", "São Paulo", "Buenos Aires"]
+    },
+    {
+        "name": "Buenos Aires",
+        "color": "yellow",
+        "population": 13639000,
+        "neighbors": ["Bogotá", "São Paulo"]
+    },
+    {
+        "name": "Cairo",
+        "color": "black",
+        "population": 14718000,
+        "neighbors": ["Algiers", "Istanbul", "Baghdad", "Riyadh", "Khartoum"]
+    },
+    {
+        "name": "Chennai",
+        "color": "black",
+        "population": 8865000,
+        "neighbors": ["Mumbai", "Delhi", "Kolkata", "Bangkok", "Jakarta"]
+    },
+    {
+        "name": "Chicago",
+        "color": "blue",
+        "population": 9121000,
+        "neighbors": ["San Francisco", "Los Angeles", "Mexico City", "Atlanta", "Montreal"]
+    },
+    {
+        "name": "Delhi",
+        "color": "black",
+        "population": 22242000,
+        "neighbors": ["Tehran", "Karachi", "Mumbai", "Chennai", "Kolkata"]
+    },
+    {
+        "name": "Essen",
+        "color": "blue",
+        "population": 575000,
+        "neighbors": ["London", "Paris", "Milan", "St. Petersburg"]
+    },
+    {
+        "name": "Ho Chi Minh City",
+        "color": "red",
+        "population": 8314000,
+        "neighbors": ["Jakarta", "Bangkok", "Hong Kong", "Manila"]
+    },
+    {
+        "name": "Hong Kong",
+        "color": "red",
+        "population": 7106000,
+        "neighbors": ["Kolkata", "Bangkok", "Ho Chi Minh City", "Manila", "Taipei", "Shanghai"]
+    },
+    {
+        "name": "Istanbul",
+        "color": "black",
+        "population": 13576000,
+        "neighbors": ["Milan", "Algiers", "Cairo", "Baghdad", "Moscow", "St. Petersburg"]
+    },
+    {
+        "name": "Jakarta",
+        "color": "red",
+        "population": 26063000,
+        "neighbors": ["Chennai", "Bangkok", "Ho Chi Minh City", "Sydney"]
+    },
+    {
+        "name": "Johannesburg",
+        "color": "yellow",
+        "population": 3888000,
+        "neighbors": ["Kinshasa", "Khartoum"]
+    },
+    {
+        "name": "Karachi",
+        "color": "black",
+        "population": 20711000,
+        "neighbors": ["Riyadh", "Baghdad", "Tehran", "Delhi", "Mumbai"]
+    },
+    {
+        "name": "Khartoum",
+        "color": "yellow",
+        "population": 4887000,
+        "neighbors": ["Cairo", "Lagos", "Kinshasa", "Johannesburg"]
+    },
+    {
+        "name": "Kinshasa",
+        "color": "yellow",
+        "population": 9046000,
+        "neighbors": ["Lagos", "Khartoum", "Johannesburg"]
+    },
+    {
+        "name": "Kolkata",
+        "color": "black",
+        "population": 14374000,
+        "neighbors": ["Delhi", "Chennai", "Bangkok", "Hong Kong"]
+    },
+    {
+        "name": "Lagos",
+        "color": "yellow",
+        "population": 11547000,
+        "neighbors": ["São Paulo", "Kinshasa", "Khartoum"]
+    },
+    {
+        "name": "Lima",
+        "color": "yellow",
+        "population": 9121000,
+        "neighbors": ["Mexico City", "Bogotá", "Santiago"]
+    },
+    {
+        "name": "London",
+        "color": "blue",
+        "population": 8586000,
+        "neighbors": ["New York", "Madrid", "Essen", "Paris"]
+    },
+    {
+        "name": "Los Angeles",
+        "color": "yellow",
+        "population": 14900000,
+        "neighbors": ["San Francisco", "Chicago", "Mexico City", "Sydney"]
+    },
+    {
+        "name": "Madrid",
+        "color": "blue",
+        "population": 5427000,
+        "neighbors": ["London", "New York", "Paris", "Algiers", "São Paulo"]
+    },
+    {
+        "name": "Manila",
+        "color": "red",
+        "population": 20767000,
+        "neighbors": ["Taipei", "San Francisco", "Ho Chi Minh City", "Sydney", "Hong Kong"]
+    },
+    {
+        "name": "Mexico City",
+        "color": "yellow",
+        "population": 19463000,
+        "neighbors": ["Los Angeles", "Chicago", "Miami", "Bogotá", "Lima"]
+    },
+    {
+        "name": "Miami",
+        "color": "yellow",
+        "population": 5582000,
+        "neighbors": ["Atlanta", "Washington", "Mexico City", "Bogotá"]
+    },
+    {
+        "name": "Milan",
+        "color": "blue",
+        "population": 5232000,
+        "neighbors": ["Essen", "Istanbul", "Paris"]
+    },
+    {
+        "name": "Montréal",
+        "color": "blue",
+        "population": 3429000,
+        "neighbors": ["Chicago", "New York", "Washington"]
+    },
+    {
+        "name": "Moscow",
+        "color": "black",
+        "population": 15512000,
+        "neighbors": ["St. Petersburg", "Istanbul", "Tehran"]
+    },
+    {
+        "name": "Mumbai",
+        "color": "black",
+        "population": 16910000,
+        "neighbors": ["Karachi", "Delhi", "Chennai"]
+    },
+    {
+        "name": "New York",
+        "color": "blue",
+        "population": 20464000,
+        "neighbors": ["Montreal", "Washington", "London", "Madrid"]
+    },
+    {
+        "name": "Osaka",
+        "color": "red",
+        "population": 28710000,
+        "neighbors": ["Tokyo", "Taipei"]
+    },
+    {
+        "name": "Paris",
+        "color": "blue",
+        "population": 10755000,
+        "neighbors": ["London", "Essen", "Milan", "Madrid", "Algiers"]
+    },
+    {
+        "name": "Riyadh",
+        "color": "black",
+        "population": 5037000,
+        "neighbors": ["Baghdad", "Cairo", "Karachi"]
+    },
+    {
+        "name": "San Francisco",
+        "color": "blue",
+        "population": 5864000,
+        "neighbors": ["Tokyo", "Manila", "Los Angeles", "Chicago"]
+    },
+    {
+        "name": "Santiago",
+        "color": "yellow",
+        "population": 6015000,
+        "neighbors": ["Lima"]
+    },
+    {
+        "name": "São Paulo",
+        "color": "yellow",
+        "population": 20186000,
+        "neighbors": ["Bogotá", "Buenos Aires", "Lagos", "Madrid"]
+    },
+    {
+        "name": "Seoul",
+        "color": "red",
+        "population": 22547000,
+        "neighbors": ["Beijing", "Shanghai", "Tokyo"]
+    },
+    {
+        "name": "Shanghai",
+        "color": "red",
+        "population": 13482000,
+        "neighbors": ["Beijing", "Seoul", "Tokyo", "Taipei", "Hong Kong"]
+    },
+    {
+        "name": "St. Petersburg",
+        "color": "blue",
+        "population": 4879000,
+        "neighbors": ["Essen", "Istanbul", "Moscow"]
+    },
+    {
+        "name": "Sydney",
+        "color": "red",
+        "population": 3785000,
+        "neighbors": ["Jakarta", "Manila", "Los Angeles"]
+    },
+    {
+        "name": "Taipei",
+        "color": "red",
+        "population": 8338000,
+        "neighbors": ["Shanghai", "Hong Kong", "Osaka", "Manila"]
+    },
+    {
+        "name": "Tehran",
+        "color": "black",
+        "population": 7419000,
+        "neighbors": ["Baghdad", "Moscow", "Karachi", "Delhi"]
+    },
+    {
+        "name": "Tokyo",
+        "color": "red",
+        "population": 13189000,
+        "neighbors": ["Seoul", "Shanghai", "Osaka", "San Francisco"]
+    },
+    {
+        "name": "Washington",
+        "color": "blue",
+        "population": 4679000,
+        "neighbors": ["Atlanta", "New York", "Montreal", "Miami"]
+    }
+]
