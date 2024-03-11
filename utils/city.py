@@ -19,6 +19,9 @@ class City:
         self.research_station = False
         self.neighbors = {}
 
+        # Quarantine Specialist logic
+        self.quarantined = False
+
 
     def __str__(self):
         """Return the name of the city."""
@@ -38,12 +41,27 @@ class City:
         """Return the neighbors of the city."""
         return self.neighbors
     
-
-    
     def add_neighbor(self, neighbor):
         """Add a neighbor to the city."""
         if neighbor.name not in self.neighbors.keys():
             self.neighbors[neighbor.name] = neighbor
             neighbor.add_neighbor(self)
 
-    # def infect(self, color: Color, )
+    def infect(self, color: str="", num_cubes: int=1):
+        """Infect the city with a number of disease cubes of a given color."""
+        if not self.quarantined and not self.color.eradicated:
+            if num_cubes < 0:
+                raise ValueError(f"Number of disease cubes must be greater than 0.")
+            elif num_cubes > 3:
+                raise ValueError(f"Number of disease cubes must be less than 4.")
+
+            if not color:
+                color = self.color.name
+            if color in self.disease_cubes.keys():
+                if self.disease_cubes[color] + num_cubes > 3:
+                    self.disease_cubes[color] = 3
+                    raise Warning(f"City {self.name} has reached maximum disease cubes for color {color}.")
+                else:
+                    self.disease_cubes[color] += num_cubes
+            else:
+                raise ValueError(f"Invalid disease color: {color}\nValid colors are: blue, yellow, black, red.")

@@ -1,7 +1,8 @@
 from .city import City
 from .color import Color
 from .player_card import CityCard, EpidemicCard, EventCard
-from .player import Player
+from .player import Player, ContingencyPlanner, Dispatcher, Medic, OperationsExpert, QuarantineSpecialist, Researcher, Scientist
+from .infection_card import InfectionCard
 
 import random
 import json
@@ -51,9 +52,10 @@ class PandemicBoard:
         self.infection_discard = []
         self.create_infection_deck()
 
-
-        
         self.cities["Atlanta"].research_station = True
+
+        # Tracks card mechanics
+        self.quiet_night = False
 
     # ------------------------Properties------------------------
     @property
@@ -67,7 +69,7 @@ class PandemicBoard:
         self.cities = cities
 
     @property
-    def connections(self) -> list:
+    def connections(self) -> list[City]:
         """Return the game board for the game."""
         return self.connections
 
@@ -87,7 +89,7 @@ class PandemicBoard:
         return self.epidemics_total
 
     @property
-    def infection_discard(self) -> list:
+    def infection_discard(self) -> list[InfectionCard]:
         """Return the infection discard pile for the game."""
         return self.infection_discard
     
@@ -97,7 +99,7 @@ class PandemicBoard:
         self.infection_discard = discard
 
     @property
-    def player_discard(self) -> list:
+    def player_discard(self) -> list[PlayerCard]:
         """Return the player discard pile for the game."""
         return self.player_discard
     
@@ -137,7 +139,7 @@ class PandemicBoard:
         return self.infection_rate[self.epidemics_drawn]
 
     @property
-    def players(self) -> list:
+    def players(self) -> list[Player]:
         """Return the players for the game."""
         return self.players
     
@@ -147,12 +149,19 @@ class PandemicBoard:
         self.players = players
 
     @property
+    def state(self) -> list[int]: # TODO: Finish this method
+        """Return the state of the game as a list of integers"""
+        state = []
+        for city in self.cities:
+            state.append(sum(city.disease_cubes.values())
+    @property
     def turns_remaining(self) -> int:
         """Return the number of turns remaining in the game."""
         return len(self.player_deck) // 2
     
-    
+    # ------------------------Methods------------------------
 
+    # Create the game components
     def create_cities(self, starting_city: str="Atlanta") -> None:
         """Create the cities for the game."""
         with open("cities.json", "r") as file:
@@ -212,8 +221,13 @@ class PandemicBoard:
         for deck in subdecks:
             self.player_deck += deck
 
+    # Game mechanics
     def infect_city(self, num_cubes:int=1, card:InfectionCard=None) -> None: # TODO: Test this method for multiple outbreaks at once
         """Infect a city from the top of the infection deck."""
+        if self.quiet_night:
+            self.quiet_night = False
+            return
+        
         if not card:
             card = self.infection_deck.pop()
         color = card.color
@@ -226,7 +240,7 @@ class PandemicBoard:
 
     def draw_player_card(self, player:Player) -> None:
         """Draw a player card from the top of the player deck."""
-        if not self.player_deck:
+        if len(self.player_deck) < 2:
             self.lose()
         for _ in range(2):
             card = self.player_deck.pop()
@@ -252,6 +266,10 @@ class PandemicBoard:
 
         if any([any([isinstance(card, ResilientPopulation) for card in player.hand]) for player in self.players]):
             raise NotImplementedError("Put option in for someone to play ResilientPopulation.")
+        
+        # Intensify
+        for card in random.shuffle(self.infection_discard):
+            self.infection_deck.insert(0, card)
 
 
     def lose(self):

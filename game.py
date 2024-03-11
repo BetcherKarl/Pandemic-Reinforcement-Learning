@@ -8,17 +8,19 @@ pg_settings = json.load(open("configs/pygame.json", "r"))
 
 # Initialize the game
 if pg_settings["display"] == "windowed":
-    display = pg.RESIZABLE
+    display_mode = pg.RESIZABLE
 elif pg_settings["display"] == "fullscreen":
-    display = pg.FULLSCREEN
+    display_mode = pg.FULLSCREEN
 else:
     raise Warning("Invalid display mode. Must be 'windowed' or 'fullscreen'.")
     display = pg.RESIZABLE
 
-resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1], display)
+resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
 pg.init()
 pg.display.set_caption(pg_settings["title"] + " - " + pg_settings["version"])
-screen = pg.display.set_mode(resolution)
+print(resolution)
+print(display_mode)
+screen = pg.display.set_mode(resolution, pg.FULLSCREEN)
 background = pg.image.load("assets/pandemic_board.png")
 # initialize the Pandemic board
 # board = PandemicBoard()
@@ -33,7 +35,7 @@ colors = {"blue": (0, 0, 255),
         "red": (255, 0, 0),
         "green": (0, 255, 0),
         "purple": (128, 0, 128),
-        "orange": (255, 165, 0),
+        "orange": (255, 165, 0),\
         "white": (255, 255, 255),
         "brown": (165, 42, 42),
         "pink": (255, 192, 203),
