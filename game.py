@@ -19,7 +19,7 @@ resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
 pg.init()
 pg.display.set_caption(pg_settings["title"] + " - " + pg_settings["version"])
 print(resolution)
-print(display_mode)
+print(display_mode == pg.RESIZABLE)
 screen = pg.display.set_mode(resolution, pg.FULLSCREEN)
 background = pg.image.load("assets/pandemic_board.png")
 # initialize the Pandemic board
