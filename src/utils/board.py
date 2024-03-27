@@ -1,6 +1,6 @@
 from .city import City
 from .color import Color
-from .player_card import CityCard, EpidemicCard, EventCard
+from .player_card import CityCard, EpidemicCard, EventCard, Airlift, Forecast, GovernmentGrant, OneQuietNight, ResilientPopulation
 from .player import Player, ContingencyPlanner, Dispatcher, Medic, OperationsExpert, QuarantineSpecialist, Researcher, Scientist
 from .infection_card import InfectionCard
 
