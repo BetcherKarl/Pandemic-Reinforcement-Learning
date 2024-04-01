@@ -3,61 +3,70 @@
         "name": "Algiers",
         "color": "black",
         "population": 2946000,
-        "neighbors": ["Madrid", "Paris", "Istanbul", "Cairo"]
+        "neighbors": ["Madrid", "Paris", "Istanbul", "Cairo"],
+        "position": [0.488, 0.4123]
     },
     {
         "name": "Atlanta",
         "color": "blue",
         "population": 4715000,
-        "neighbors": ["Chicago", "Washington", "Miami"]
+        "neighbors": ["Chicago", "Washington", "Miami"],
+        "position": [0.1975, 0.385]
     },
     {
         "name": "Baghdad",
         "color": "black",
         "population": 6204000,
-        "neighbors": ["Tehran", "Istanbul", "Cairo", "Riyadh", "Karachi"]
+        "neighbors": ["Tehran", "Istanbul", "Cairo", "Riyadh", "Karachi"],
+        "position": [0.5995, 0.399]
     },
     {
         "name": "Bangkok",
         "color": "red",
         "population": 7151000,
-        "neighbors": ["Kolkata", "Chennai", "Jakarta", "Ho Chi Minh City", "Hong Kong"]
+        "neighbors": ["Kolkata", "Chennai", "Jakarta", "Ho Chi Minh City", "Hong Kong"],
+        "position": [0.7735, 0.5085]
     },
     {
         "name": "Beijing",
         "color": "red",
         "population": 17311000,
-        "neighbors": ["Seoul", "Shanghai"]
+        "neighbors": ["Seoul", "Shanghai"],
+        "position": [0.804, 0.315]
     },
     {
         "name": "Bogotá",
         "color": "yellow",
         "population": 8702000,
-        "neighbors": ["Mexico City", "Miami", "Lima", "São Paulo", "Buenos Aires"]
+        "neighbors": ["Mexico City", "Miami", "Lima", "São Paulo", "Buenos Aires"],
+        "position": [0.235, 0.5605]
     },
     {
         "name": "Buenos Aires",
         "color": "yellow",
         "population": 13639000,
-        "neighbors": ["Bogotá", "São Paulo"]
+        "neighbors": ["Bogotá", "São Paulo"],
+        "position": [0.2923, 0.756]
     },
     {
         "name": "Cairo",
         "color": "black",
         "population": 14718000,
-        "neighbors": ["Algiers", "Istanbul", "Baghdad", "Riyadh", "Khartoum"]
+        "neighbors": ["Algiers", "Istanbul", "Baghdad", "Riyadh", "Khartoum"],
+        "position": [0.54, 0.432]
     },
     {
         "name": "Chennai",
         "color": "black",
         "population": 8865000,
-        "neighbors": ["Mumbai", "Delhi", "Kolkata", "Bangkok", "Jakarta"]
+        "neighbors": ["Mumbai", "Delhi", "Kolkata", "Bangkok", "Jakarta"],
+        "position": [0.725, 0.5545]
     },
     {
         "name": "Chicago",
         "color": "blue",
         "population": 9121000,
-        "neighbors": ["San Francisco", "Los Angeles", "Mexico City", "Atlanta", "Montreal"]
+        "neighbors": ["San Francisco", "Los Angeles", "Mexico City", "Atlanta", "Montréal"]
     },
     {
         "name": "Delhi",
@@ -201,7 +210,7 @@
         "name": "New York",
         "color": "blue",
         "population": 20464000,
-        "neighbors": ["Montreal", "Washington", "London", "Madrid"]
+        "neighbors": ["Montréal", "Washington", "London", "Madrid"]
     },
     {
         "name": "Osaka",
@@ -285,6 +294,6 @@
         "name": "Washington",
         "color": "blue",
         "population": 4679000,
-        "neighbors": ["Atlanta", "New York", "Montreal", "Miami"]
+        "neighbors": ["Atlanta", "New York", "Montréal", "Miami"]
     }
 ]

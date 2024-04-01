@@ -6,61 +6,131 @@ class City:
     def __init__(self, name: str, color: Color, population: int):
         """Initialize a city with a name, color, and population."""
         if name:
-            self.name = name
-        if color in ["blue", "yellow", "black", "red"]:
-            self.color = color
+            self._name = name
+        if color.name in ["blue", "yellow", "black", "red"]:
+            self._color = color
         else:
             raise ValueError(f"Invalid color for city {name}: {color}\n Valid colors are: blue, yellow, black, red.")
         if population > 100000:
-            self.population = population
+            self._population = population
         else:
             raise ValueError(f"Invalid population for city {name}: {population}\n Population must be greater than 100,000.")
-        self.disease_cubes = {Color('blue'): 0, Color('yellow'): 0, Color('black'): 0, Color('red'): 0}
-        self.research_station = False
-        self.neighbors = {}
+        self._disease_cubes = {Color('blue'): 0, Color('yellow'): 0, Color('black'): 0, Color('red'): 0}
+        self._research_station = False
+        self._neighbors = []
 
         # Quarantine Specialist logic
-        self.quarantined = False
+        self._quarantined = False
+
+        self._position = [0.0, 0.0]
 
 
     def __str__(self):
         """Return the name of the city."""
-        return self.name
+        return self._name
     
     def __repr__(self):
         """Return a representation of the city."""
-        return f"City(name='{self.name}', color='{self.color}', population={self.population}, disease_cubes={self.disease_cubes}, research_station={self.research_station}, neighbors={self.neighbors})"
-    
+        return f"City(name='{self._name}', color='{self._color}', population={self._population}, disease_cubes={self._disease_cubes}, research_station={self._research_station}, neighbors={self._neighbors})"
+
+    @property
+    def name(self) -> str:
+        """Return the name of the city."""
+        return self._name
+
+    @name.setter
+    def name(self, other: str):
+        """Set the name of the city."""
+        self._name = other
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, other: Color):
+        """Set the color of the city."""
+        self._color = other
+
+    @property
+    def population(self) -> int:
+        """Return the population of the city."""
+        return self._population
+
+    @population.setter
+    def population(self, other: int):
+        """Set the population of the city."""
+        if other > 100000:
+            self._population = other
+        else:
+            raise ValueError(f"New population value of {other} is not valid for city {self.name}."
+                             f"\nCity population must be greater than 100,000.")
+
     @property
     def disease_cubes(self):
         """Return the disease cubes for the city."""
-        return self.disease_cubes
+        return self._disease_cubes
+
+    @disease_cubes.setter
+    def disease_cubes(self, other:dict[Color, int]) -> None:
+        self._disease_cubes = other
+
+    @property
+    def position(self):
+        """Return the position of the city on the screen"""
+        return self._position
+
+    @position.setter
+    def position(self, other:list[float, float]) -> None:
+        if len(other) != 2:
+            raise ValueError(f"Invalid length of {len(other)} position for city {self._name}.\n"
+                             f"Position is a list of two percentages, in decimal form.")
+        elif not isinstance(other[0], float) or not isinstance(other[1], float):
+            raise TypeError(f"Invalid type for entries of position: {type(other[0])} and {type(other[1])} for city {self._name}.\n"
+                            f"Position is a list of two percentages, in decimal form.")
+        elif not 0 <= other[0] <= 1 or not 0 <= other[1] <= 1:
+            raise ValueError(f"Invalid value for positions {other[0]} and {other[1]} for city {self._name}.\n"
+                             f"Position values must be decimals between 0 and 1.")
+        else:
+            self._position = other
     
     @property
-    def neighbors(self):
+    def neighbors(self) -> list:
         """Return the neighbors of the city."""
-        return self.neighbors
+        return self._neighbors
+
+    @neighbors.setter
+    def neighbors(self, other: list) -> None:
+        self._neighbors = other
+
+    @property
+    def has_research_station(self) -> bool:
+        return self._research_station
+
+    @has_research_station.setter
+    def has_research_station(self, other: bool) -> None:
+        self._research_station = bool(other)
     
     def add_neighbor(self, neighbor):
         """Add a neighbor to the city."""
-        if neighbor.name not in self.neighbors.keys():
-            self.neighbors[neighbor.name] = neighbor
+        if neighbor not in self.neighbors:
+            self.neighbors.append(neighbor)
             neighbor.add_neighbor(self)
 
-    def infect(self, color: str="", num_cubes: int=1):
+    def infect(self, color: Color, num_cubes: int=1):
         """Infect the city with a number of disease cubes of a given color."""
-        if not self.quarantined and not self.color.eradicated:
+        if not self._quarantined and not self._color.eradicated:
             if num_cubes < 0:
                 raise ValueError(f"Number of disease cubes must be greater than 0.")
             elif num_cubes > 3:
                 raise ValueError(f"Number of disease cubes must be less than 4.")
 
             if not color:
-                color = self.color.name
+                color = self._color.name
             if color in self.disease_cubes.keys():
                 if self.disease_cubes[color] + num_cubes > 3:
                     self.disease_cubes[color] = 3
-                    raise Warning(f"City {self.name} has reached maximum disease cubes for color {color}.")
+                    raise Warning(f"City {self._name} has reached maximum disease cubes for color {color}.")
                 else:
                     self.disease_cubes[color] += num_cubes
             else:
