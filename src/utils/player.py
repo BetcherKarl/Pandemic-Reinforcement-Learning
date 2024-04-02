@@ -13,11 +13,20 @@ class Player(ABC):
         self.actions_remaining = self.action_limit
         self.actions = {} # TODO: Implement action logic
         self.board = board
-        self.hand = []
+        self._hand = []
         self.location = board.cities["Atlanta"]
         self.hand_limit = 7
         self.pawn_color = None
         self.role = None
+
+    @property
+    def hand(self):
+        """Return the hand of the player"""
+        return self._hand
+
+    @hand.setter
+    def hand(self, other):
+        self._hand = other
 
     def add_to_hand(self, card) -> int:
         """Add a card to the player's hand."""
@@ -130,6 +139,7 @@ class ContingencyPlanner(Player): # TODO: Implement this
         super().__init__(board)
         self.role = 'Contingency Planner'
         self.special_event = None
+        self.pawn_color = "cyan"
 
 class Dispatcher(Player): # TODO: Implement this
     """A player with the dispatcher role."""
@@ -137,6 +147,7 @@ class Dispatcher(Player): # TODO: Implement this
         """Initialize a dispatcher player."""
         super().__init__(board)
         self.role = 'Dispatcher'
+        self.pawn_color = "pink"
 
 class OperationsExpert(Player): # TODO: Implement this
     """A player with the operations expert role."""
@@ -144,6 +155,7 @@ class OperationsExpert(Player): # TODO: Implement this
         """Initialize an operations expert player."""
         super().__init__(board)
         self.role = 'Operations Expert'
+        self.pawn_color = "lime"
 
 class Medic(Player): # TODO: Test this
     """A player with the medic role."""
@@ -151,6 +163,7 @@ class Medic(Player): # TODO: Test this
         """Initialize a medic player."""
         super().__init__(board)
         self.role = 'Medic'
+        self.pawn_color = "orange"
 
     def treat_city(self):
         """Treat the disease in the current city."""
@@ -173,6 +186,7 @@ class QuarantineSpecialist(Player): # TODO: Test this
         """Initialize a quarantine specialist player."""
         super().__init__(board)
         self.role = 'Quarantine Specialist'
+        self.pawn_color = "green"
 
     def turn_start(self):
         """Start the player's turn."""
@@ -196,6 +210,7 @@ class Researcher(Player): # TODO: Test this
         """Initialize a researcher player."""
         super().__init__(board)
         self.role = 'Researcher'
+        self.pawn_color = "brown"
 
 class Scientist(Player): # TODO: Test this
     """A player with the scientist role."""
@@ -203,12 +218,8 @@ class Scientist(Player): # TODO: Test this
         """Initialize a scientist player."""
         super().__init__(board)
         self.role = 'Scientist'
+        self.pawn_color = "white"
 
     def cure_disease(self):
         """Cure a disease of a certain color."""
         super().cure_disease(4)
-
-
-
-
-

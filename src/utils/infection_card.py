@@ -6,5 +6,16 @@ from .city import City
 class InfectionCard:
     def __init__(self, city: City):
         """Initialize an infection card with a city and color."""
-        self.city = city
-        self.color = city.color
+        self._city = city
+        self._color = city.color
+
+    @property
+    def color(self):
+        """Return the color of the infection card."""
+        return self._color
+
+    @property
+    def city(self):
+        """Return the city of the infection card."""
+        return self._city
+

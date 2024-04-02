@@ -15,7 +15,7 @@ class City:
             self._population = population
         else:
             raise ValueError(f"Invalid population for city {name}: {population}\n Population must be greater than 100,000.")
-        self._disease_cubes = {Color('blue'): 0, Color('yellow'): 0, Color('black'): 0, Color('red'): 0}
+        self._disease_cubes = {'blue': 0, 'yellow': 0, 'black': 0, 'red': 0}
         self._research_station = False
         self._neighbors = []
 
@@ -117,7 +117,7 @@ class City:
             self.neighbors.append(neighbor)
             neighbor.add_neighbor(self)
 
-    def infect(self, color: Color, num_cubes: int=1):
+    def infect(self, color: str, num_cubes: int=1):
         """Infect the city with a number of disease cubes of a given color."""
         if not self._quarantined and not self._color.eradicated:
             if num_cubes < 0:

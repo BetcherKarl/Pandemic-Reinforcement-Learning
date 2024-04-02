@@ -158,7 +158,6 @@ class PandemicBoard:
         print(f"Warning: Score is not yet completed")
         return state
 
-
     def turns_remaining(self) -> int:
         """Return the number of turns remaining in the game."""
         return len(self._player_deck) // 2
@@ -172,11 +171,7 @@ class PandemicBoard:
             cities = json.load(file)
         for city in cities:
             self.cities[city["name"]] = City(city["name"], self._colors[city["color"]], city["population"])
-            try:
-                self.cities[city["name"]].position = city["position"]
-                print(f"{city['name']} has a position")
-            except KeyError:
-                print(f"{city['name']} has no location defined")
+            self.cities[city["name"]].position = city["position"]
 
         for city in cities:
             for neighbor in city["neighbors"]:
@@ -196,9 +191,21 @@ class PandemicBoard:
 
     def create_infection_deck(self) -> None:
         """Create the infection deck for the game."""
+        # create the infection deck
         for city_name, city in self.cities.items():
             self._infection_deck.append(InfectionCard(city))
         random.shuffle(self._infection_deck)
+
+        # infect the first 9 cities
+        for i in range(1, 4):
+            for _ in range(3):
+                card = self._infection_deck.pop()
+                city = card.city
+                color = city.color
+
+                city.infect(color.name, num_cubes=i)
+
+                self._infection_discard.append(card)
 
     def create_player_deck(self) -> None:
         """Create the player deck for the game."""
