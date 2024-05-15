@@ -12,7 +12,7 @@ class Color:
 
     def __str__(self) -> str:
         """Return the color of the disease."""
-        return self.name
+        return repr(self)
     
     def __repr__(self) -> str:
         """Return a representation of the color."""

@@ -19,6 +19,8 @@ class City:
         self._research_station = False
         self._neighbors = []
 
+        self._outbroken = False
+
         # Quarantine Specialist logic
         self._quarantined = False
 
@@ -117,7 +119,7 @@ class City:
             self.neighbors.append(neighbor)
             neighbor.add_neighbor(self)
 
-    def infect(self, color: str, num_cubes: int=1):
+    def infect(self, color: str, num_cubes: int=1) -> False:
         """Infect the city with a number of disease cubes of a given color."""
         if not self._quarantined and not self._color.eradicated:
             if num_cubes < 0:
@@ -129,9 +131,16 @@ class City:
                 color = self._color.name
             if color in self.disease_cubes.keys():
                 if self.disease_cubes[color] + num_cubes > 3:
-                    self.disease_cubes[color] = 3
-                    raise Warning(f"City {self._name} has reached maximum disease cubes for color {color}.")
+                    if not self._outbroken:
+                        self._outbroken = True
+                        self.disease_cubes[color] = 3
+                        num_outbreaks = 0
+                        for city in self.neighbors:
+                            num_outbreaks += city.infect(color, 1)
+                            self._outbroken = False
+                        return num_outbreaks + 1
                 else:
                     self.disease_cubes[color] += num_cubes
+                    return 0
             else:
                 raise ValueError(f"Invalid disease color: {color}\nValid colors are: blue, yellow, black, red.")

@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 
 class Player(ABC):
     """An agent in a game of pandemic."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a player with a role and a hand of cards."""
         
         self.action_limit = 4
@@ -14,7 +14,7 @@ class Player(ABC):
         self.actions = {} # TODO: Implement action logic
         self.board = board
         self._hand = []
-        self.location = board.cities["Atlanta"]
+        self.location = board.cities[starting_city]
         self.hand_limit = 7
         self.pawn_color = None
         self.role = None
@@ -134,34 +134,34 @@ class Player(ABC):
 
 class ContingencyPlanner(Player): # TODO: Implement this
     """A player with the contingency planner role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a contingency planner player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Contingency Planner'
         self.special_event = None
         self.pawn_color = "cyan"
 
 class Dispatcher(Player): # TODO: Implement this
     """A player with the dispatcher role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a dispatcher player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Dispatcher'
         self.pawn_color = "pink"
 
 class OperationsExpert(Player): # TODO: Implement this
     """A player with the operations expert role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize an operations expert player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Operations Expert'
         self.pawn_color = "lime"
 
 class Medic(Player): # TODO: Test this
     """A player with the medic role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a medic player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Medic'
         self.pawn_color = "orange"
 
@@ -182,9 +182,9 @@ class Medic(Player): # TODO: Test this
 
 class QuarantineSpecialist(Player): # TODO: Test this
     """A player with the quarantine specialist role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a quarantine specialist player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Quarantine Specialist'
         self.pawn_color = "green"
 
@@ -206,17 +206,17 @@ class QuarantineSpecialist(Player): # TODO: Test this
 
 class Researcher(Player): # TODO: Test this
     """A player with the researcher role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a researcher player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Researcher'
         self.pawn_color = "brown"
 
 class Scientist(Player): # TODO: Test this
     """A player with the scientist role."""
-    def __init__(self, board):
+    def __init__(self, board, starting_city):
         """Initialize a scientist player."""
-        super().__init__(board)
+        super().__init__(board, starting_city)
         self.role = 'Scientist'
         self.pawn_color = "white"
 

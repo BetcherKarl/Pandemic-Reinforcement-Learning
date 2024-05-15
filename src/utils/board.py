@@ -8,7 +8,7 @@ import random
 import json
 
 class PandemicBoard:
-    def __init__(self, num_epidemics=5, num_players=3):
+    def __init__(self, num_epidemics=5, num_players=3, starting_city="Atlanta"):
         """Initialize the board for Pandemic.
         Contains all the steps of setup in the Pandemic Rules"""
 
@@ -18,7 +18,7 @@ class PandemicBoard:
         # STEP 0: Create the basic game components
         self._colors = {"blue": Color("blue"), "yellow": Color("yellow"), "black": Color("black"), "red": Color("red")}
         self._cities = {}
-        self.create_cities()
+        self.create_cities(starting_city=starting_city)
 
         self._connections = [] # connections between cities
 
@@ -43,7 +43,7 @@ class PandemicBoard:
 
         self._players = []
         self._current_player = 0 # index of the current player in the players list
-        self.create_players(num_players)
+        self.create_players(num_players, starting_city)
 
         self._player_deck = []
         self._player_discard = []
@@ -52,8 +52,6 @@ class PandemicBoard:
         self._infection_deck = []
         self._infection_discard = []
         self.create_infection_deck()
-
-        self.cities["Atlanta"].research_station = True
 
         # Tracks card mechanics
         self.quiet_night = False
@@ -180,12 +178,12 @@ class PandemicBoard:
         # add research station to starting city
         self.cities[starting_city].has_research_station = True
 
-    def create_players(self, num_players: int) -> None:
+    def create_players(self, num_players: int, starting_city="Atlanta") -> None:
         """Create the players for the game."""
-        roles = [ContingencyPlanner(self), Dispatcher(self),
-                Medic(self), OperationsExpert(self),
-                QuarantineSpecialist(self), Researcher(self),
-                Scientist(self)]
+        roles = [ContingencyPlanner(self,starting_city), Dispatcher(self, starting_city),
+                Medic(self, starting_city), OperationsExpert(self, starting_city),
+                QuarantineSpecialist(self, starting_city), Researcher(self, starting_city),
+                Scientist(self, starting_city)]
         random.shuffle(roles)
         self._players = roles[:num_players]
 
@@ -211,7 +209,7 @@ class PandemicBoard:
         """Create the player deck for the game."""
         # Create all the city and event cards
         for city_name, city in self.cities.items():
-            self._player_deck.append(CityCard(city))
+            self._player_deck.append(CityCard(self, city))
         event_cards = [Airlift(self), Forecast(self), GovernmentGrant(self), OneQuietNight(self), ResilientPopulation(self)]
         for card in event_cards:
             self._player_deck.append(card)
@@ -227,7 +225,7 @@ class PandemicBoard:
         self._players.sort(key=lambda x: max(x.hand, key=lambda y: isinstance(y, CityCard)).city.population, reverse=True)
                 
         # add the epidemic cards
-        subdecks = [[EpidemicCard()] for _ in range(self.total_epidemics)]
+        subdecks = [[EpidemicCard(self)] for _ in range(self.total_epidemics)]
         for i in range(len(self._player_deck)): # distributing the epidemic cards evenly across the player deck
             subdecks[i % self.total_epidemics].append(self._player_deck[i])
 
@@ -247,13 +245,18 @@ class PandemicBoard:
         
         if not card:
             card = self._infection_deck.pop()
+            self._infection_discard.append(card)
         color = card.color
         if color.disease_cubes < num_cubes:
             self.lose()
-        elif card.city.infect(num_cubes, color): # infect the city (method returns True if an outbreak occurs)
-                self.num_outbreaks += 1
+            return
+
+        result = card.city.infect(color.name, num_cubes)
+        if result > 0: # infect the city (method returns number of outbroken cities)
+                self.num_outbreaks += result
                 if self.num_outbreaks >= self._outbreaks_max:
                     self.lose()
+                return
 
     def draw_player_card(self, player:Player) -> None:
         """Draw a player card from the top of the player deck."""
@@ -280,14 +283,19 @@ class PandemicBoard:
         # Infect
         bottom_card = self._infection_deck.pop(0)
         self.infect_city(card=bottom_card, num_cubes=3)
+        self.infection_deck.append(bottom_card)
 
         if any([any([isinstance(card, ResilientPopulation) for card in player.hand]) for player in self._players]):
             raise NotImplementedError("Put option in for someone to play ResilientPopulation.")
         
         # Intensify
-        for card in random.shuffle(self._infection_discard):
+        random.shuffle(self._infection_discard)
+        for card in self._infection_discard:
             self._infection_deck.insert(0, card)
+        self._infection_discard = []
 
     def lose(self):
         """Lose the game."""
         raise NotImplementedError("Losing the game is not yet implemented.")
+
+    # Helper Methods
