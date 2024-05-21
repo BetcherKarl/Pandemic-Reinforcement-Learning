@@ -9,6 +9,9 @@ class InfectionCard:
         self._city = city
         self._color = city.color
 
+    def __str__(self):
+        return self._city.__str__()
+
     @property
     def color(self):
         """Return the color of the infection card."""

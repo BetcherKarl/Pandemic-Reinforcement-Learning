@@ -131,6 +131,7 @@ class City:
                 color = self._color.name
             if color in self.disease_cubes.keys():
                 if self.disease_cubes[color] + num_cubes > 3:
+                    print(f"Oh no, an outbreak at {self.name}")
                     if not self._outbroken:
                         self._outbroken = True
                         self.disease_cubes[color] = 3

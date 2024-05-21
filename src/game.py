@@ -1,12 +1,14 @@
-import pygame as pg
-import json
-import numpy as np
 from utils.board import PandemicBoard
-from PIL import Image
-
 from constants import colors
 
-# TODO: implement scaling of board for different resolutions
+from PIL import Image
+import numpy as np
+import pygame as pg
+
+import json
+from threading import Thread
+from time import sleep
+import random
 
 # import preferences
 pg_settings = json.load(open("configs/pygame.json", "r"))
@@ -38,12 +40,21 @@ last_res = resolution
 # initialize the Pandemic board
 board = PandemicBoard(screen)
 
-for _ in range(2):
-    board.player_discard.append(board._player_deck.pop())
+# for _ in range(1):
+#     board.epidemic()
 
 running = True
 
 
+def wait_test(wait_time=5):
+    global board
+    print("Changing infection rate...")
+
+    board.players[0].save_the_day()
+
+
+testing_thread = Thread(target=wait_test)
+testing_thread.start()
 
 while running:
     for event in pg.event.get():

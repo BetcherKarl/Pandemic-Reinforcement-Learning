@@ -1,6 +1,5 @@
 """The file containing the player card class for a game of Pandemic."""
 from abc import ABC, abstractmethod
-from .player import Player
 
 
 class PlayerCard(ABC):
@@ -18,7 +17,7 @@ class PlayerCard(ABC):
     def display_color(self) -> str:
         return self._display_color
 
-    def use(self, player: Player):
+    def use(self, player):
         """Use the card."""
         pass
 
@@ -55,7 +54,7 @@ class CityCard(PlayerCard):
         """Return a representation of the city card."""
         return f"CityCard(city={self._city})"
 
-    def use(self, player: Player) -> int:
+    def use(self, player) -> int:
         """Discard this card to use it.
         
         When a player discards a city card, they may move to the city on the card.
@@ -93,7 +92,7 @@ class EventCard(PlayerCard, ABC):
         self._name = None
         self._display_color = 'amber'
 
-    def use(self, player: Player):
+    def use(self, player):
         """Use the event card."""
         return 0  # Actions return their cost
 
@@ -104,7 +103,7 @@ class Airlift(EventCard):
         self._name = 'Airlift'
 
 
-    def use(self, player: Player):
+    def use(self, player):
         pass
 
 
@@ -130,7 +129,7 @@ class OneQuietNight(EventCard):
         self._name = 'One Quiet Night'
 
 
-    def use(self, player: Player):
+    def use(self, player):
         """Skip the next infect cities step."""
         self._board.quiet_night = True
         super().use()

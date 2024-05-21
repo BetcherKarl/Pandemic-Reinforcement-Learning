@@ -5,10 +5,13 @@ from .player import Player, ContingencyPlanner, Dispatcher, Medic, OperationsExp
 from .infection_card import InfectionCard
 from constants import colors
 
+import numpy as np
 import pygame as pg
 
 import random
 import json
+from typing import List
+from collections import deque
 
 pg_settings = json.load(open("configs/pygame.json", "r"))
 radius = pg_settings["city_circle_radius"]
@@ -50,7 +53,7 @@ class PandemicBoard:
 
         self._players = []
         self._current_player = 0 # index of the current player in the players list
-        self.create_players(num_players, starting_city)
+        self.create_players(num_players, starting_city, role=True)
 
         self._player_deck = []
         self._player_discard = []
@@ -63,7 +66,7 @@ class PandemicBoard:
         # Tracks card mechanics
         self.quiet_night = False
 
-    # ------------------------Properties------------------------
+    # ------------------------------------------------PROPERTIES--------------------------------------------------------
     @property
     def cities(self) -> dict:
         """Return the cities for the game."""
@@ -122,7 +125,7 @@ class PandemicBoard:
     @property
     def num_outbreaks(self) -> int:
         """Return the number of outbreaks in the game."""
-        return self._num_outbreaks
+        return self._outbreaks_curr
 
     @num_outbreaks.setter
     def num_outbreaks(self, num: int) -> None:
@@ -158,16 +161,48 @@ class PandemicBoard:
     def state(self) -> list[int]: # TODO: Finish this method
         """Return the state of the game as a list of integers"""
         state = []
-        for city in self.cities:
-            state.append(sum(city.disease_cubes.values()))
-        print(f"Warning: Score is not yet completed")
+
+        city_list = self.city_list()
+
+        for city in city_list:
+            state.append(sum(city.disease_cubes.values())) # The number of disease cubes on each city
+            if city.has_research_station:
+                state.append(1)
+            else:
+                state.append(0)
+        for player in self.players:
+            state.append(city_list.index(player.location)) # The player's position
+                                                           # (as the index of the city in the list of cities)
+        if len(self.players) < 4:
+            for _ in range(len(self.players), 4):
+                state.append(0) # ensure dimensionality stability
+        for disease in self._colors.values(): # add the cure/eradication information for each color
+            if disease.eradicated:
+                state.append(2)
+            elif disease.cured:
+                state.append(1)
+            else:
+                state.append(0)
+
+            state.append(color.disease_cubes) # and the number of cubes left
+
+        state.append(self.infection_rate)
+
+        state.append(self._outbreaks_curr)
+
+        state.append(len(self._player_deck) // 2) # number of turns remaining
+
+        state.append(self.epidemics_drawn)
+        state.append(self.epidemics_total)
+
+        print(f"Warning: Score system is not yet completed")
         return state
 
     def turns_remaining(self) -> int:
         """Return the number of turns remaining in the game."""
         return len(self._player_deck) // 2
 
-    # ------------------------Methods------------------------
+    # -------------------------------------------------METHODS----------------------------------------------------------
 
     # Create the game components
     def create_cities(self, starting_city: str="Atlanta") -> None:
@@ -185,14 +220,18 @@ class PandemicBoard:
         # add research station to starting city
         self.cities[starting_city].has_research_station = True
 
-    def create_players(self, num_players: int, starting_city="Atlanta") -> None:
+    def create_players(self, num_players: int, starting_city="Atlanta", role=True) -> None:
         """Create the players for the game."""
-        roles = [ContingencyPlanner(self,starting_city), Dispatcher(self, starting_city),
-                Medic(self, starting_city), OperationsExpert(self, starting_city),
-                QuarantineSpecialist(self, starting_city), Researcher(self, starting_city),
-                Scientist(self, starting_city)]
-        random.shuffle(roles)
-        self._players = roles[:num_players]
+
+        if role:
+            roles = [ContingencyPlanner(self,starting_city), Dispatcher(self, starting_city),
+                    Medic(self, starting_city), OperationsExpert(self, starting_city),
+                    QuarantineSpecialist(self, starting_city), Researcher(self, starting_city),
+                    Scientist(self, starting_city)]
+            random.shuffle(roles)
+            self._players = roles[:num_players]
+        else:
+            self._players = [Player(self, starting_city=starting_city) for i in range(num_players)]
 
     def create_infection_deck(self) -> None:
         """Create the infection deck for the game."""
@@ -221,7 +260,7 @@ class PandemicBoard:
         for card in event_cards:
             self._player_deck.append(card)
 
-        # deal the player cards
+        # deal the players cards
         random.shuffle(self._player_deck)
         num_cards = 6 - len(self._players)
         for player in self._players:
@@ -284,13 +323,14 @@ class PandemicBoard:
 
     def epidemic(self) -> None:
         """Handle an epidemic in the game."""
+        print("Oops, an epidemic!")
         # Increase
         self._epidemics_drawn += 1
 
         # Infect
         bottom_card = self._infection_deck.pop(0)
         self.infect_city(card=bottom_card, num_cubes=3)
-        self.infection_deck.append(bottom_card)
+        self._infection_deck.append(bottom_card)
 
         if any([any([isinstance(card, ResilientPopulation) for card in player.hand]) for player in self._players]):
             raise NotImplementedError("Put option in for someone to play ResilientPopulation.")
@@ -305,7 +345,7 @@ class PandemicBoard:
         """Lose the game."""
         raise NotImplementedError("Losing the game is not yet implemented.")
 
-    # -------------------------------Display Methods---------------------------------------
+    # ---------------------------------------------DISPLAY METHODS------------------------------------------------------
     def draw(self):
         self.display_cities()
         self.display_players()
@@ -351,14 +391,18 @@ class PandemicBoard:
                                            city_radius // 4)
 
     def display_connections(self):
-        exceptions = ['San Francisco', 'Los Angeles', 'Sydney', 'Manila', 'Tokyo'] # cities on the edge of the board
+        exception1 = ['San Francisco', 'Los Angeles']
+        exception2 = ['Sydney', 'Manila', 'Tokyo'] # cities on the edge of the board
         for connection in self.connections:
             location_1 = [int(self.cities[connection[0]].position[0] * self._canvas.get_width()),
                           int(self.cities[connection[0]].position[1] * self._canvas.get_height())]
             location_2 = [int(self.cities[connection[1]].position[0] * self._canvas.get_width()),
                           int(self.cities[connection[1]].position[1] * self._canvas.get_height())]
-            if connection[0] in exceptions and connection[1] in exceptions:
-                pass
+            if connection[0] in exception1 and connection[1] in exception2 or connection[0] in exception2 and connection[1] in exception1:
+                midpoint_y = np.mean([location_1[1], location_2[1]])
+                locations = sorted([location_1, location_2], key=lambda x: x[0])
+                pg.draw.line(self._canvas, colors["white"], locations[0], (0, midpoint_y))
+                pg.draw.line(self._canvas, colors["white"], locations[1], (self._canvas.get_width(), midpoint_y))
             else:
                 pg.draw.line(self._canvas, colors["white"], location_1, location_2)
 
@@ -392,9 +436,9 @@ class PandemicBoard:
 
     def display_trackers(self):
         # Draw the outbreak tracker
-        tracker_radius = radius * (self._canvas.get_width() // 2560) * 1.1
+        tracker_radius = radius * (self._canvas.get_width() / 2560) * 1.1
         location = [0.643, 0.233]
-        coeff = self._outbreaks_curr
+        coeff = self._epidemics_drawn
         location = [int((location[0] + coeff * 0.034) * self._canvas.get_width()), int(location[1] * self._canvas.get_height())]
         pg.draw.circle(self._canvas,
                        colors["dark green"],
@@ -523,3 +567,72 @@ class PandemicBoard:
                                int((coeffs[1] + (coeffs[3] / 2) - 0.07) * self._canvas.get_height())]
 
             self._canvas.blit(text, textRect)
+
+    # ----------------------------------------- HELPER METHODS --------------------------------------------------------
+    def city_list(self) -> List[City]:
+        return sorted(list(self.cities.values()))
+
+    def shortest_path(self, start_city_name: str, end_city_name: str) -> list:
+        """Find the shortest path between two cities using BFS."""
+        if start_city_name not in self._cities.keys() or end_city_name not in self._cities.keys():
+            raise ValueError("One or both of the specified cities do not exist.")
+
+        start_city = self._cities[start_city_name]
+        end_city = self._cities[end_city_name]
+
+        # Initialize the queue with the start city and a path containing just the start city
+        queue = deque([(start_city, [start_city_name])])
+        visited = set()
+
+        while queue:
+            current_city, path = queue.popleft()
+
+            if current_city.name in visited:
+                continue
+
+            # Mark the current city as visited
+            visited.add(current_city.name)
+
+            # Check if we have reached the end city
+            if current_city.name == end_city_name:
+                return path
+
+            # Add neighbors to the queue
+            for neighbor in current_city.neighbors:
+                if neighbor.name not in visited:
+                    queue.append((neighbor, path + [neighbor.name]))
+
+        # Return an empty list if there is no path
+        return []
+
+    def emergency_path(self, start_city_name: str) -> list:
+        """Find the shortest path between two cities using BFS."""
+        if start_city_name not in self._cities.keys():
+            raise ValueError("The specified city does not exist.")
+
+        start_city = self._cities[start_city_name]
+
+        # Initialize the queue with the start city and a path containing just the start city
+        queue = deque([(start_city, [start_city_name])])
+        visited = set()
+
+        while queue:
+            current_city, path = queue.popleft()
+
+            if current_city.name in visited:
+                continue
+
+            # Mark the current city as visited
+            visited.add(current_city.name)
+
+            # Check if we have reached the end city
+            if sum(current_city._disease_cubes.values()) >= 3:
+                return path
+
+            # Add neighbors to the queue
+            for neighbor in current_city.neighbors:
+                if neighbor.name not in visited:
+                    queue.append((neighbor, path + [neighbor.name]))
+
+        # Return an empty list if there is no path
+        return []
