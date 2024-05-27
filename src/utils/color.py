@@ -28,7 +28,7 @@ class Color:
 
     def eradicate(self) -> None:
         """Eradicate the disease."""
-        if self.disease_cubes == 0 and self.cured:
+        if self.disease_cubes == 24 and self.cured:
             self.eradicated = True
 
     

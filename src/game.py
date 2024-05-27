@@ -12,8 +12,8 @@ import random
 
 # import preferences
 pg_settings = json.load(open("configs/pygame.json", "r"))
-
 resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
+
 # Initialize the game
 if pg_settings["display"] == "windowed":
     screen = pg.display.set_mode(resolution, pg.RESIZABLE)
@@ -40,28 +40,25 @@ last_res = resolution
 # initialize the Pandemic board
 board = PandemicBoard(screen)
 
-# for _ in range(1):
-#     board.epidemic()
-
 running = True
 
-
+# function to test behavior of code
 def wait_test(wait_time=5):
     global board
     print("Changing infection rate...")
 
-    board.players[0].save_the_day()
-
+    board.current_player.save_the_day()
 
 testing_thread = Thread(target=wait_test)
 testing_thread.start()
+# str4tttttttttttttttttttttttttttttttttttett5t -merlin
 
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
 
-    # display the background
+    # display the background (resize if not the same size as last frame)
     resolution = screen.get_size()
     if resolution != last_res:
         im = im.resize(resolution)

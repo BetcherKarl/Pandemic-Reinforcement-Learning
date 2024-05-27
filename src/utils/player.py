@@ -10,7 +10,7 @@ class Player():
     """An agent in a game of pandemic."""
     def __init__(self, board, starting_city):
         """Initialize a player with a role and a hand of cards."""
-        
+        # self.canvas = canvas
         self.action_limit = 4
         self.actions_remaining = self.action_limit
         self.actions = {} # TODO: Implement action logic
@@ -21,6 +21,14 @@ class Player():
         self.pawn_color = None
         self.role = None
 
+    # TODO: modify hand to be dictionary of similar cards
+    # hand = {"red": [],
+    #         "blue": [],
+    #         "black": [],
+    #         "yellow": [],
+    #         "special": []}
+
+    # TODO: modify drawing mechanic too
     @property
     def hand(self):
         """Return the hand of the player"""
@@ -85,11 +93,6 @@ class Player():
             self.treat_city()
             sleep(2)
 
-
-
-
-
-
     def place_research_station(self, city: City): # TODO: Test this
         """Place a research station in the current city."""
         for card in self.hand:
@@ -127,9 +130,6 @@ class Player():
         else:
             return np.Array(state)
 
-
-
-        
     def take_action(self, action: str):
         """Take an action from the player's action list."""
         if action in self.actions.keys():
@@ -139,13 +139,17 @@ class Player():
 
     def treat_city(self):
         """Treat the disease in the current city."""
-        print(f"Player {self.role} is removing a disease cube at {self.location.name}")
         if self.location.disease_cubes[self.location.color.name] > 0:
             if self.location.color.cured:
+                print(f"Player {self.role} is removing all disease cube at {self.location.name}")
+                self.location.color.disease_cubes += self.location.disease_cubes[self.location.color.name]
                 self.location.disease_cubes[self.location.color.name] = 0
             elif self.location.disease_cubes[self.location.color.name]:
+                self.location.color.disease_cubes += 1
                 self.location.disease_cubes[self.location.color.name] -= 1
-
+                print(f"Player {self.role} is removing all disease cube at {self.location.name}")
+        else:
+            raise NotImplementedError("Score system is not implemented")
 
     def turn_end(self):
         """End the player's turn."""
@@ -223,7 +227,7 @@ class Medic(Player): # TODO: Test this
         if self.location.disease_cubes[self.location.color.name] > 0:
             num_cubes = self.location.disease_cubes[self.location.color.name]
             self.location.disease_cubes[self.location.color.name] = 0
-            self.board.disease_cubes[self.location.color.name] += num_cubes
+            self.location.color.disease_cubes += num_cubes
             return 1 # actions return their cost
 
     def take_action(self, action: str):
@@ -242,8 +246,6 @@ class Medic(Player): # TODO: Test this
         if self.location.color.eradicated:
             self.location.quarantined = True
         super().turn_end()
-
-
 
 class QuarantineSpecialist(Player): # TODO: Test this
     """A player with the quarantine specialist role."""

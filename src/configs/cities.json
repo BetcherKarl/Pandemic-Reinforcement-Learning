@@ -116,7 +116,7 @@
         "color": "yellow",
         "population": 3888000,
         "neighbors": ["Kinshasa", "Khartoum"],
-        "position": [0.55, 0.71]
+        "position": [0.5495, 0.71]
     },
     {
         "name": "Karachi",
