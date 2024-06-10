@@ -210,9 +210,12 @@ class PandemicBoard:
         print(f"Warning: Score system is not yet completed")
         return state
 
+    @property
     def turns_remaining(self) -> int:
         """Return the number of turns remaining in the game."""
         return len(self._player_deck) // 2
+
+    # --------------------------------------------GAME MECHANICS---------------------------
 
     # -------------------------------------------------METHODS----------------------------------------------------------
     # Create the game components
@@ -370,8 +373,7 @@ class PandemicBoard:
         for city_name, city in self.cities.items():
             # horizontal, vertical
             # left-right, top-down
-            location = [int(city.position[0] * self._canvas.get_width()),
-                        int(city.position[1] * self._canvas.get_height())]
+            location = self.on_background([city.position[0],city.position[1]])
 
             # display a white outline if the city has a research station
             if city.has_research_station:
@@ -407,17 +409,37 @@ class PandemicBoard:
         exception1 = ['San Francisco', 'Los Angeles']
         exception2 = ['Sydney', 'Manila', 'Tokyo'] # cities on the edge of the board
         for connection in self.connections:
-            location_1 = [int(self.cities[connection[0]].position[0] * self._canvas.get_width()),
-                          int(self.cities[connection[0]].position[1] * self._canvas.get_height())]
-            location_2 = [int(self.cities[connection[1]].position[0] * self._canvas.get_width()),
-                          int(self.cities[connection[1]].position[1] * self._canvas.get_height())]
-            if connection[0] in exception1 and connection[1] in exception2 or connection[0] in exception2 and connection[1] in exception1:
+            location_1 = self.on_background([self.cities[connection[0]].position[0],
+                                             self.cities[connection[0]].position[1]])
+            location_2 = self.on_background([self.cities[connection[1]].position[0],
+                                            self.cities[connection[1]].position[1]])
+            if (connection[0] in exception1 and connection[1] in exception2 or
+                connection[0] in exception2 and connection[1] in exception1):
+
                 midpoint_y = np.mean([location_1[1], location_2[1]])
                 locations = sorted([location_1, location_2], key=lambda x: x[0])
-                pg.draw.line(self._canvas, colors["white"], locations[0], (0, midpoint_y))
-                pg.draw.line(self._canvas, colors["white"], locations[1], (self._canvas.get_width(), midpoint_y))
+                pg.draw.line(self._canvas, colors["white"], locations[0], (0.125 * self._canvas.get_width(), midpoint_y))
+                pg.draw.line(self._canvas, colors["white"], locations[1], (0.875 * self._canvas.get_width(), midpoint_y))
             else:
                 pg.draw.line(self._canvas, colors["white"], location_1, location_2)
+
+    def display_player_hands(self):
+        # raise NotImplementedError("Finish Implementing Drawing of Player Hands dipwad")
+        location = [0.5, 0.5]
+        vertical_offset = 0.05
+        horizontal_offset = 0.05
+
+        current_loc = location
+        for player in self.players:
+            hand = sorted(player.hand, key=lambda x: x.color)
+            # display role name here
+            for card in hand:
+                # display card name here (and card num)
+                # display card color as well
+                # s
+
+                current_loc[0] += horizontal_offset
+            current_loc[1] += vertical_offset
 
     def display_players(self):
         player_radius = radius * (self._canvas.get_width() / 2560)
@@ -429,8 +451,7 @@ class PandemicBoard:
                 locations[player.location.name].append(player)
 
         for city, players in locations.items():
-            city_position = self.cities[city].position
-            city_position = [city_position[0] * self._canvas.get_width(), city_position[1] * self._canvas.get_height()]
+            city_position = self.on_background(self.cities[city].position)
             player_position = [city_position[0] + (2 * player_radius) / 3, city_position[1] - (2 * player_radius) / 3]
             for i in range(len(players)):
                 interval = player_radius
@@ -443,6 +464,8 @@ class PandemicBoard:
                                player_position,
                                player_radius // 2)
 
+        self.display_player_hands()
+
     def display_misc(self):
         self.display_trackers()
         self.display_decks()
@@ -452,8 +475,7 @@ class PandemicBoard:
         tracker_radius = radius * (self._canvas.get_width() / 2560) * 1.1
         location = [0.643, 0.233]
         coeff = self._epidemics_drawn
-        location = [int((location[0] + coeff * 0.034) * self._canvas.get_width()),
-                    int(location[1] * self._canvas.get_height())]
+        location = self.on_background([0.643 + coeff * 0.034, 0.233])
         pg.draw.circle(self._canvas,
                        colors["dark green"],
                        location,
@@ -466,7 +488,7 @@ class PandemicBoard:
         for name, color in self._colors.items():
             if color.cured:
                 location[1] -= cure_distance
-            loc = [int(location[0] * self._canvas.get_width()), int(location[1] * self._canvas.get_height())]
+            loc = self.on_background(location)
             pg.draw.circle(self._canvas, colors[name], loc, tracker_radius)
             if color.eradicated:
                 font = pg.font.SysFont("arial", int(48 * (self._canvas.get_width() / 2560)))
@@ -489,7 +511,7 @@ class PandemicBoard:
         if coeff % 2 == 1:
             location[0] += h_dist
         location[1] += v_dist * coeff
-        loc = [int(location[0] * self._canvas.get_width()), int(location[1] * self._canvas.get_height())]
+        loc = self.on_background(location)
         pg.draw.circle(self._canvas, colors["dark green"], loc, tracker_radius)
 
 
@@ -497,7 +519,7 @@ class PandemicBoard:
 
     def display_decks(self):
         border = 10 * (self._canvas.get_width() / 2560) # determine border thickness
-        offset = (0.1625 * self._canvas.get_width()) # determine distance between draw & discard piles on board
+        offset = (0.1625 * 0.75 * self._canvas.get_width()) # determine distance between draw & discard piles on board
 
         # Draw the infection deck
         # location = [left, top, width, height]
@@ -505,11 +527,11 @@ class PandemicBoard:
         font = pg.font.SysFont("arial", int(48 * (self._canvas.get_width() / 2560)))
         text = font.render(str(len(self._infection_deck)), True, colors["white"])
         textRect = text.get_rect()
-        textRect.center = [int((coeffs[0] + (coeffs[2] / 2)) * self._canvas.get_width()),
-                           int((coeffs[1] + (coeffs[3] / 2)) * self._canvas.get_height())]
+        textRect.center = self.on_background([coeffs[0] + (coeffs[2] / 2),
+                                              coeffs[1] + (coeffs[3] / 2)])
 
         location = [int(coeffs[i] * self._canvas.get_width()) if i % 2 == 0 else int(coeffs[i] * self._canvas.get_height())
-                    for i in range(len(coeffs))]
+                    for i in range(len(coeffs))] # TODO: what the fuck is this
         pg.draw.rect(self._canvas,
                      colors["black"],
                      pg.Rect(location[0],
@@ -536,7 +558,7 @@ class PandemicBoard:
                                int((coeffs[1] + (coeffs[3] / 2)) * self._canvas.get_height())]
 
             location = [int(coeffs[i] * self._canvas.get_width()) if i % 2 == 0 else int(coeffs[i] * self._canvas.get_height())
-                        for i in range(len(coeffs))]
+                        for i in range(len(coeffs))] # TODO: what the fuck is this
 
             pg.draw.rect(self._canvas,
                          colors["white"],
@@ -572,7 +594,7 @@ class PandemicBoard:
         textRect.center = [int((coeffs[0] + (coeffs[2] / 2)) * self._canvas.get_width()),
                            int((coeffs[1] + (coeffs[3] / 2)) * self._canvas.get_height())]
         location = [int(coeffs[i] * self._canvas.get_width()) if i % 2 == 0 else int(coeffs[i] * self._canvas.get_height())
-                    for i in range(len(coeffs))]
+                    for i in range(len(coeffs))] # TODO: what the fuck is this
         pg.draw.rect(self._canvas, colors["cyan"], pg.Rect(location[0], location[1], location[2], location[3]), 0,
                      10)  # cyan card outline
         pg.draw.rect(self._canvas, colors["blue"],
@@ -586,10 +608,9 @@ class PandemicBoard:
             text = font.render(self.player_discard[-1].name, True,
                                text_color)
             textRect = text.get_rect()
-            textRect.center = [int((coeffs[0] + (coeffs[2] / 2) + 0.13) * self._canvas.get_width()),
-                               int((coeffs[1] + (coeffs[3] / 2)) * self._canvas.get_height())]
+            textRect.center = self.on_background([coeffs[0] + (coeffs[2] / 2) + 0.13,coeffs[1] + (coeffs[3] / 2)])
             location = [int(coeffs[i] * self._canvas.get_width()) if i % 2 == 0 else int(coeffs[i] * self._canvas.get_height())
-                        for i in range(len(coeffs))]
+                        for i in range(len(coeffs))] # TODO: what the fuck is this
             pg.draw.rect(self._canvas,
                          colors["white"],
                          pg.Rect(location[0] + offset,
@@ -610,8 +631,8 @@ class PandemicBoard:
 
             text = font.render(str(len(self._player_discard)), True, text_color)
             textRect = text.get_rect()
-            textRect.center = [int((coeffs[0] + (coeffs[2] / 2) + 0.1) * self._canvas.get_width()),
-                               int((coeffs[1] + (coeffs[3] / 2) - 0.07) * self._canvas.get_height())]
+            textRect.center = self.on_background([coeffs[0] + (coeffs[2] / 2) + 0.1,
+                                                  coeffs[1] + (coeffs[3] / 2) - 0.07])
 
             self._canvas.blit(text, textRect)
 
@@ -689,3 +710,20 @@ class PandemicBoard:
         return []
 
         # TODO: Add rendering of player hands
+
+    def on_background(self, location: List[float]) -> List[int]:
+        """Convert a relative position to an absolute position on the board background.
+        (a pair of nums representing what % of the board it is to pixel nums)
+
+        param location: the pair of nums representing what % of the board something is located at"""
+        if len(location) != 2:
+            raise ValueError("location must be a pair of floats")
+        for val in location:
+            if val < 0 or val > 1:
+                raise ValueError("Location must be between 0 and 1")
+
+        return [int((0.75 * location[0] + 0.125) * self._canvas.get_width()),
+                int((0.75 * location[1] + 0.125) * self._canvas.get_height())]
+
+
+

@@ -3,12 +3,16 @@ class Color:
     def __init__(self, color: str):
         """Initialize a color with a name."""
         if color in ["blue", "yellow", "black", "red"]:
-            self.name = color
+            self._name = color
         else:
             raise ValueError(f"Invalid color: {color}\n Valid colors are: blue, yellow, black, red.")
         self.disease_cubes = 24
         self.cured = False
         self.eradicated = False
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def __str__(self) -> str:
         """Return the color of the disease."""
@@ -30,5 +34,3 @@ class Color:
         """Eradicate the disease."""
         if self.disease_cubes == 24 and self.cured:
             self.eradicated = True
-
-    

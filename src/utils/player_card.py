@@ -14,12 +14,13 @@ class PlayerCard(ABC):
         return self._name
 
     @property
-    def display_color(self) -> str:
-        return self._display_color
+    @abstractmethod
+    def color(self) -> str:
+        pass
 
+    @abstractmethod
     def use(self, player):
         """Use the card."""
-        pass
 
 
 class CityCard(PlayerCard):
@@ -29,22 +30,17 @@ class CityCard(PlayerCard):
         """Initialize a city card with a city."""
         super().__init__(board)
         self._city = city
-        self._color = city.color
         self._name = city.name
 
     @property
-    def color(self):
+    def color(self) -> str:
         """Return the color of the city."""
-        return self._color
+        return self.city.color.name
 
     @property
     def city(self):
         """Return the city of the city card."""
         return self._city
-
-    @property
-    def display_color(self) -> str:
-        return self._color.name
 
     def __str__(self):
         """Return the name of the city."""
@@ -74,7 +70,10 @@ class EpidemicCard(PlayerCard):
         """Initialize an epidemic card."""
         super().__init__(board)
         self._name = 'Epidemic'
-        self._display_color = 'green'
+
+    @property
+    def color(self) -> str:
+        return "dark green"
 
 
     def __str__(self):
@@ -85,12 +84,18 @@ class EpidemicCard(PlayerCard):
         """Return a representation of the epidemic card."""
         return "EpidemicCard()"
 
+    def use(self, player):
+        pass
+
 
 class EventCard(PlayerCard, ABC):
     def __init__(self, board):
         super().__init__(board)
         self._name = None
-        self._display_color = 'amber'
+
+    @property
+    def color(self) -> str:
+        return "amber"
 
     def use(self, player):
         """Use the event card."""

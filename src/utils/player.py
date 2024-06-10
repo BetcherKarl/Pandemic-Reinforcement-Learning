@@ -141,13 +141,13 @@ class Player():
         """Treat the disease in the current city."""
         if self.location.disease_cubes[self.location.color.name] > 0:
             if self.location.color.cured:
-                print(f"Player {self.role} is removing all disease cube at {self.location.name}")
+                print(f"Player {self.role} is removing all disease cubes at {self.location.name}")
                 self.location.color.disease_cubes += self.location.disease_cubes[self.location.color.name]
                 self.location.disease_cubes[self.location.color.name] = 0
             elif self.location.disease_cubes[self.location.color.name]:
                 self.location.color.disease_cubes += 1
                 self.location.disease_cubes[self.location.color.name] -= 1
-                print(f"Player {self.role} is removing all disease cube at {self.location.name}")
+                print(f"Player {self.role} is removing a disease cube at {self.location.name}")
         else:
             raise NotImplementedError("Score system is not implemented")
 
@@ -225,6 +225,7 @@ class Medic(Player): # TODO: Test this
     def treat_city(self):
         """Treat the disease in the current city."""
         if self.location.disease_cubes[self.location.color.name] > 0:
+            print(f"Player medic is removing all disease cubes at {self.location.name}")
             num_cubes = self.location.disease_cubes[self.location.color.name]
             self.location.disease_cubes[self.location.color.name] = 0
             self.location.color.disease_cubes += num_cubes

@@ -9,10 +9,23 @@ import json
 from threading import Thread
 from time import sleep
 import random
+from typing import Tuple
+
+def get_image(path: str, resolution: Tuple[int, int]) -> Image:
+    img = Image.open(path)
+    img = img.resize(resolution)
+    img = img.transpose(Image.FLIP_LEFT_RIGHT)
+    img = pg.surfarray.make_surface(np.array(img))
+    img = pg.transform.rotate(img, 270)
+    return img
+
 
 # import preferences
 pg_settings = json.load(open("configs/pygame.json", "r"))
 resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
+background_resolution = (int(0.75 * resolution[0]), int(0.75 * resolution[1]))
+print(f"Resolution: {resolution}")
+print(f"Background resolution: {background_resolution}")
 
 # Initialize the game
 if pg_settings["display"] == "windowed":
@@ -27,17 +40,16 @@ pg.display.set_caption(pg_settings["title"] + " - " + pg_settings["version"])
 print(resolution)
 pg.init()
 
-# get the background and resize it
-im = Image.open("assets/pandemic_game_board.jpg")
-im = im.resize(resolution)
-im = im.transpose(Image.FLIP_LEFT_RIGHT)
-image_array = np.array(im)
-pygame_image = pg.surfarray.make_surface(image_array)
-background = pg.transform.rotate(pygame_image, 270)
-background_top = 0
-background_left = 0
+
+background_top = int(0.125 * resolution[0])
+background_left = int(0.125 * resolution[1])
 last_res = resolution
 # initialize the Pandemic board
+
+# get the background and resize it
+table = get_image('assets/wood_texture.jpg', resolution)
+background = get_image('assets/pandemic_game_board.jpg', background_resolution)
+
 board = PandemicBoard(screen)
 
 running = True
@@ -50,8 +62,8 @@ def wait_test(wait_time=5):
     board.current_player.save_the_day()
 
 testing_thread = Thread(target=wait_test)
-testing_thread.start()
-# str4tttttttttttttttttttttttttttttttttttett5t -merlin
+# testing_thread.start()
+# str4tttttttttttttttttttttttttttttttttttett5t - Merlin (my cat)
 
 while running:
     for event in pg.event.get():
@@ -61,21 +73,14 @@ while running:
     # display the background (resize if not the same size as last frame)
     resolution = screen.get_size()
     if resolution != last_res:
-        im = im.resize(resolution)
-        # im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        image_array = np.array(im)
-        pygame_image = pg.surfarray.make_surface(image_array)
-        background = pg.transform.rotate(pygame_image, 270)
-    last_res = resolution
+        background_resolution = (int(0.75 * resolution[0]), int(0.75 * resolution[1]))
+        print(f"Resolution: {resolution}")
+        print(f"Background resolution: {background_resolution}")
+        background = get_image('assets/wood_texture.jpg', background_resolution)
+        table = get_image('assets/wood_texture.jpg', resolution)
+        last_res = resolution
+    screen.blit(table, (0, 0))
     screen.blit(background, (background_top, background_left))
-
-    # TODO: cure tracker
-
-    # TODO: outbreak tracker
-
-    # TODO: Turn remaining counter
-
-    # TODO: Player Card Deck/tracker
 
     # TODO: Click to view cards in discards
     board.draw()

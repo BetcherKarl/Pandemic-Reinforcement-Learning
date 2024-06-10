@@ -46,7 +46,7 @@ class City:
         self._name = other
 
     @property
-    def color(self):
+    def color(self) -> Color:
         return self._color
 
     @color.setter
