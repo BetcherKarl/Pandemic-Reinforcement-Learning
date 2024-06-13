@@ -17,4 +17,8 @@ colors = {"amber": (255, 191, 0),
           "maroon": (128, 0, 0),
           "lime": (50, 200, 50)}
 
+vertical_card_size = (0.1, 0.2)
+
+horizontal_card_size = (0.14, 0.14)
+
 r_seed = 42

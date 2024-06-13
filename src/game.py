@@ -1,5 +1,4 @@
 from utils.board import PandemicBoard
-from constants import colors
 
 from PIL import Image
 import numpy as np
@@ -64,7 +63,7 @@ def wait_test(wait_time=5):
 testing_thread = Thread(target=wait_test)
 # testing_thread.start()
 # str4tttttttttttttttttttttttttttttttttttett5t - Merlin (my cat)
-
+print(len(board._player_deck))
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -76,7 +75,9 @@ while running:
         background_resolution = (int(0.75 * resolution[0]), int(0.75 * resolution[1]))
         print(f"Resolution: {resolution}")
         print(f"Background resolution: {background_resolution}")
-        background = get_image('assets/wood_texture.jpg', background_resolution)
+        background = get_image('assets/pandemic_game_board.jpg', background_resolution)
+        background_top = int(0.125 * resolution[0])
+        background_left = int(0.125 * resolution[1])
         table = get_image('assets/wood_texture.jpg', resolution)
         last_res = resolution
     screen.blit(table, (0, 0))

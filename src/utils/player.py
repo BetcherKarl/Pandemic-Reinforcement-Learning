@@ -1,7 +1,7 @@
 """This file contains the player class for a game of Pandemic."""
 from .color import Color
 from .city import City
-from .player_card import CityCard
+from .card import CityCard
 from abc import ABC, abstractmethod
 
 from time import sleep
