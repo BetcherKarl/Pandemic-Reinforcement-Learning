@@ -1,34 +1,38 @@
-"""This file contains the player class for a game of Pandemic."""
+"""This file contains the player class fo * (board_size / 0.65)r a game of Pandemic."""
 from .color import Color
 from .city import City
-from .card import CityCard
+from .card import PlayerCard, CityCard, EventCard
 from abc import ABC, abstractmethod
 
 from time import sleep
 
-class Player():
+
+class Player(ABC):
     """An agent in a game of pandemic."""
     def __init__(self, board, starting_city):
         """Initialize a player with a role and a hand of cards."""
         # self.canvas = canvas
         self.action_limit = 4
-        self.actions_remaining = self.action_limit
-        self.actions = {} # TODO: Implement action logic
+        self.actions_remaining: int = self.action_limit
+        self.actions = {
+            'drive/ferry': self.drive_ferry,
+            'treat disease': self.treat_disease,
+            'place research station': self.place_research_station,
+            'shuttle flight': self.shuttle_flight,
+            'card movement': self.use_card,
+            'share knowledge': self.share_knowledge,
+            'discover a cure': self.discover_a_cure
+        } # TODO: Implement action logic
         self.board = board
-        self._hand = []
-        self.location = board.cities[starting_city]
+        self._hand: list[PlayerCard] = []
+        self.location: City = board.cities[starting_city]
         self.hand_limit = 7
-        self.pawn_color = None
-        self.role = None
 
-    # TODO: modify hand to be dictionary of similar cards
-    # hand = {"red": [],
-    #         "blue": [],
-    #         "black": [],
-    #         "yellow": [],
-    #         "special": []}
+    @property
+    @abstractmethod
+    def pawn_color(self) -> str:
+        pass
 
-    # TODO: modify drawing mechanic too
     @property
     def hand(self):
         """Return the hand of the player"""
@@ -38,25 +42,29 @@ class Player():
     def hand(self, other):
         self._hand = other
 
+    @property
+    @abstractmethod
+    def role(self):
+        pass
+
     def add_to_hand(self, card) -> int:
         """Add a card to the player's hand."""
         self.hand.append(card)
-        return 0 # actions return their action cost
+        self.hand.sort(key=lambda x: x.name)
+        self.hand.sort(key=lambda x: x.color)
         if len(self.hand) > self.hand_limit:
             raise NotImplementedError("Hand limit reached.") # TODO: Implement discard logic
+        return 0  # actions return their action cost
 
-    def cure_disease(self, cards_to_cure: int = 5):  # TODO: Test this
+    def discover_a_cure(self, cards_to_cure: int = 5):  # TODO: Test this
         """Cure a disease of a certain color."""
         if self.location.research_station:
-            card_counter = {color: [] for color in self.board.colors.values()}
+            card_counter = {color: 0 for color in self.board.colors.keys()}
             for card in self.hand:
-                card_counter = {color: [] for color in self.board.colors.values()}
-                try:
-                    if card.color in card_counter.keys():
-                        card_counter[card.color].append()
-                except AttributeError:
-                    pass
-            color = max(card_counter, key=len(card_counter.get))
+                if isinstance(card, CityCard):
+                    card_counter[card.color] += 1
+
+            color = max(card_counter, key=card_counter.get)
             if card_counter[color] >= cards_to_cure:
                 self.board.cured[color] = True
                 return 1  # actions return their action cost
@@ -87,22 +95,25 @@ class Player():
         for stop in path[1:]:
             print(f"\tPlayer {self.role} is moving to {stop}.")
             sleep(2)
-            self.drive_ferry(self.board.cities[stop])
+            # self.take_action['drive/ferry'](self.board.cities[stop])
+            self.take_action('drive/ferry', arg=self.board.cities[stop])
         sleep(2)
         while self.location.disease_cubes[self.location.color.name] > 0:
-            self.treat_city()
+            self.take_action('treat disease')
             sleep(2)
 
-    def place_research_station(self, city: City): # TODO: Test this
+    def place_research_station(self): # TODO: Test this
         """Place a research station in the current city."""
+        if self.location.has_research_station:
+            raise ValueError(f"There is already a research station in {self.location.name}, "
+                             f"{self.role} is attempting to place one here")
         for card in self.hand:
-            try:
+            if isinstance(card, CityCard):
                 if card.city == self.location:
-                    self.hand.remove(card)
-                    self.location.research_station = True
-                    return 1 # actions return their action cost
-            except AttributeError:
-                pass
+                    self.location.has_research_station = True
+                    return 1
+        raise ValueError(f"Player {self.role} is missing card to place research station in city {self.location.name}")
+
 
     def shuttle_flight(self, city: City): # TODO: Test this
         """Move to a city with a research station."""
@@ -130,14 +141,17 @@ class Player():
         else:
             return np.Array(state)
 
-    def take_action(self, action: str):
+    def take_action(self, action: str, arg=None) -> None:
         """Take an action from the player's action list."""
         if action in self.actions.keys():
-            self.actions_remaining -= self.actions[action]() # actions return their action cost
+            if arg is None:
+                self.actions_remaining -= self.actions[action]() # actions return their action cost
+            else:
+                self.actions_remaining -= self.actions[action](arg)  # actions return their action cost
         else:
             raise ValueError(f"Invalid action: {action}")
 
-    def treat_city(self):
+    def treat_disease(self):
         """Treat the disease in the current city."""
         if self.location.disease_cubes[self.location.color.name] > 0:
             if self.location.color.cured:
@@ -148,15 +162,14 @@ class Player():
                 self.location.color.disease_cubes += 1
                 self.location.disease_cubes[self.location.color.name] -= 1
                 print(f"Player {self.role} is removing a disease cube at {self.location.name}")
+            return 1
         else:
-            raise NotImplementedError("Score system is not implemented")
+            pass
+            # raise NotImplementedError("Score system is not implemented")
 
     def turn_end(self):
         """End the player's turn."""
-        self.board.draw_player_cards(self)
-        self.board.infect_cities()
-        self.actions_remaining = self.action_limit
-        self.board._current_player = (self.board._current_player + 1) % len(self.board._players)
+        self.board.next_player()
 
     def turn_start(self):
         """Start the player's turn."""
@@ -188,30 +201,65 @@ class Player():
                 except AttributeError:
                     pass
 
+
 class ContingencyPlanner(Player): # TODO: Implement this
     """A player with the contingency planner role."""
     def __init__(self, board, starting_city):
         """Initialize a contingency planner player."""
         super().__init__(board, starting_city)
-        self.role = 'Contingency Planner'
         self.special_event = None
-        self.pawn_color = "cyan"
+
+    @property
+    def pawn_color(self) -> str:
+        return "cyan"
+
+    @property
+    def role(self) -> str:
+        return 'Contingency Planner'
+
+    def special_action(self):
+        cards = []
+        for card in self.board.player_discard:
+            if isinstance(card, EventCard):
+                cards.append(card)
+
+        if len(cards) > 0:
+            raise NotImplementedError("Implement choice")
+            choice: EventCard
+            # self.board.player_discard.
+        else:
+            raise ValueError("No applicable cards")
+
 
 class Dispatcher(Player): # TODO: Implement this
     """A player with the dispatcher role."""
     def __init__(self, board, starting_city):
         """Initialize a dispatcher player."""
         super().__init__(board, starting_city)
-        self.role = 'Dispatcher'
-        self.pawn_color = "pink"
 
-class OperationsExpert(Player): # TODO: Implement this
+    @property
+    def pawn_color(self) -> str:
+        return "pink"
+
+    @property
+    def role(self):
+        return 'Dispatcher'
+
+
+class OperationsExpert(Player):  # TODO: Implement this
     """A player with the operations expert role."""
     def __init__(self, board, starting_city):
         """Initialize an operations expert player."""
         super().__init__(board, starting_city)
-        self.role = 'Operations Expert'
-        self.pawn_color = "lime"
+
+    @property
+    def pawn_color(self) -> str:
+        return "lime"
+
+    @property
+    def role(self):
+        return 'Operations Expert'
+
 
 class Medic(Player): # TODO: Test this
     # TODO: Find a better implementation of the Medic's ability to auto-remove stuff using quarantine logic (may have to change bool to int)
@@ -219,10 +267,16 @@ class Medic(Player): # TODO: Test this
     def __init__(self, board, starting_city):
         """Initialize a medic player."""
         super().__init__(board, starting_city)
-        self.role = 'Medic'
-        self.pawn_color = "orange"
 
-    def treat_city(self):
+    @property
+    def pawn_color(self) -> str:
+        return "orange"
+
+    @property
+    def role(self) -> str:
+        return 'Medic'
+
+    def treat_disease(self):
         """Treat the disease in the current city."""
         if self.location.disease_cubes[self.location.color.name] > 0:
             print(f"Player medic is removing all disease cubes at {self.location.name}")
@@ -230,31 +284,40 @@ class Medic(Player): # TODO: Test this
             self.location.disease_cubes[self.location.color.name] = 0
             self.location.color.disease_cubes += num_cubes
             return 1 # actions return their cost
+        else:
+            raise ValueError(f"City {self.location.name} does not have disease cubes. Player Medic is attempting to remove cubes")
 
-    def take_action(self, action: str):
+    def take_action(self, action: str, arg=None) -> None:
         """Take an action from the player's action list."""
-        for color in self.board.colors.values():
-            if color.eradicated:
-                self.board.colors[color.name].disease_cubes += self.location.disease_cubes
-                self.location.disease_cubes[color] = 0
-        super().take_action(action)
+        super().take_action(action, arg=arg)
+        current_color = self.board._colors[self.location.color.name]
+        if current_color.cured and not current_color.eradicated:
+            self.treat_disease()
 
     def turn_start(self):
         self.location.quarantined = False
         super().turn_start()
 
     def turn_end(self):
-        if self.location.color.eradicated:
+
+        if self.location.color.cured:
             self.location.quarantined = True
         super().turn_end()
+
 
 class QuarantineSpecialist(Player): # TODO: Test this
     """A player with the quarantine specialist role."""
     def __init__(self, board, starting_city):
         """Initialize a quarantine specialist player."""
         super().__init__(board, starting_city)
-        self.role = 'Quarantine Specialist'
-        self.pawn_color = "green"
+
+    @property
+    def pawn_color(self) -> str:
+        return "green"
+
+    @property
+    def role(self):
+        return 'Quarantine Specialist'
 
     def turn_start(self):
         """Start the player's turn."""
@@ -272,22 +335,36 @@ class QuarantineSpecialist(Player): # TODO: Test this
             city.quarantined = True
         super().turn_end()
 
+
 class Researcher(Player): # TODO: Test this
     """A player with the researcher role."""
     def __init__(self, board, starting_city):
         """Initialize a researcher player."""
         super().__init__(board, starting_city)
-        self.role = 'Researcher'
-        self.pawn_color = "brown"
+
+    @property
+    def pawn_color(self) -> str:
+        return "brown"
+
+    @property
+    def role(self):
+        return 'Researcher'
+
 
 class Scientist(Player): # TODO: Test this
     """A player with the scientist role."""
     def __init__(self, board, starting_city):
         """Initialize a scientist player."""
         super().__init__(board, starting_city)
-        self.role = 'Scientist'
-        self.pawn_color = "white"
 
-    def cure_disease(self):
+    @property
+    def pawn_color(self) -> str:
+        return "white"
+
+    @property
+    def role(self) -> str:
+        return 'Scientist'
+
+    def discover_a_cure(self, cards_to_cure: int = 4):
         """Cure a disease of a certain color."""
-        super().cure_disease(4)
+        super().discover_a_cure(cards_to_cure)

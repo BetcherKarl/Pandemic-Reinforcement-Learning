@@ -111,7 +111,7 @@ class City:
 
     @has_research_station.setter
     def has_research_station(self, other: bool) -> None:
-        self._research_station = bool(other)
+        self._research_station = other
     
     def add_neighbor(self, neighbor):
         """Add a neighbor to the city."""
@@ -119,7 +119,7 @@ class City:
             self.neighbors.append(neighbor)
             neighbor.add_neighbor(self)
 
-    def infect(self, color: str, num_cubes: int=1) -> False:
+    def infect(self, color: str, num_cubes: int = 1) -> False:
         """Infect the city with a number of disease cubes of a given color."""
         if not self._quarantined and not self._color.eradicated:
             if num_cubes < 0:
@@ -141,7 +141,10 @@ class City:
                             self._outbroken = False
                         return num_outbreaks + 1
                 else:
+                    print(f"Placing {num_cubes} {color} cubes on {self.name}")
                     self.disease_cubes[color] += num_cubes
                     return 0
             else:
                 raise ValueError(f"Invalid disease color: {color}\nValid colors are: blue, yellow, black, red.")
+        else:
+            return 0
