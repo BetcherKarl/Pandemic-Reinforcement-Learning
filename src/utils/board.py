@@ -398,7 +398,8 @@ class PandemicBoard:
                            (location[0], location[1]),
                            city_radius)
 
-            stride = int(city_radius * 1.1)
+            stride = city_radius
+            cube_size = city_radius / 2
             # display the disease cubes for each city
             if sum(city.disease_cubes.values()) > 0:
                 color_location = [location[0], location[1] - stride]
@@ -410,11 +411,11 @@ class PandemicBoard:
                             pg.draw.circle(self._canvas,  # white border
                                            colors["white"],
                                            [cube_location[0], cube_location[1] - (stride / 2) * i],
-                                           city_radius // 3)
+                                           1.25 * cube_size)
                             pg.draw.circle(self._canvas,  # cube color fill
                                            colors[cube_color],
                                            [cube_location[0], cube_location[1] - (stride / 2) * i],
-                                           city_radius // 4)
+                                           cube_size)
 
     def display_connections(self):
         border = (1 - board_size) / 2

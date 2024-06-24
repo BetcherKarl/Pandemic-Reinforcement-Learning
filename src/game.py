@@ -70,7 +70,7 @@ def wait_test(wait_time=4):
 
 
 testing_thread = Thread(target=wait_test)
-# testing_thread.start()
+testing_thread.start()
 # str4tttttttttttttttttttttttttttttttttttett5t - Merlin (my cat)
 
 for player in board.players:
