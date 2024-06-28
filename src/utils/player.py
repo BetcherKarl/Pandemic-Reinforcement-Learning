@@ -89,18 +89,18 @@ class Player(ABC):
             sleep(2)
             self.drive_ferry(self.board.cities[stop])
 
-    def save_the_day(self) -> None:
+    def save_the_day(self, wait_time=2) -> None:
         path = self.board.emergency_path(self.location.name)
         print(f"Player {self.role} is going to {path[-1]}.")
         for stop in path[1:]:
             print(f"\tPlayer {self.role} is moving to {stop}.")
-            sleep(2)
+            sleep(wait_time)
             # self.take_action['drive/ferry'](self.board.cities[stop])
             self.take_action('drive/ferry', arg=self.board.cities[stop])
-        sleep(2)
+        sleep(wait_time)
         while self.location.disease_cubes[self.location.color.name] > 0:
             self.take_action('treat disease')
-            sleep(2)
+            sleep(wait_time)
 
     def place_research_station(self): # TODO: Test this
         """Place a research station in the current city."""

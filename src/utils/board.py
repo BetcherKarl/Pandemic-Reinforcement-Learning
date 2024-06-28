@@ -666,6 +666,7 @@ class PandemicBoard:
         self._canvas.blit(text, textRect)
 
     def display_trackers(self):
+        font = pg.font.SysFont("arial", int(48 * board_size * (self._canvas.get_width() / 2560)))
         # Draw the infection rate tracker
         tracker_radius = radius * board_size * (self._canvas.get_width() / 2560) * 1.1
         coeff = self._epidemics_drawn
@@ -684,12 +685,20 @@ class PandemicBoard:
                 location[1] -= cure_distance
             loc = self.on_background(location)
             pg.draw.circle(self._canvas, colors[name], loc, tracker_radius)
+            if name == 'yellow':
+                display_color = colors['black']
+            else:
+                display_color = colors['white']
+
             if color.eradicated:
-                font = pg.font.SysFont("arial", int(48 * board_size * (self._canvas.get_width() / 2560)))
-                text = font.render('E', True, colors["white"])
-                textRect = text.get_rect()
-                textRect.center = loc
-                self._canvas.blit(text, textRect)
+                val = 'E'
+            else:
+                val = str(color.disease_cubes)
+
+            text = font.render(val, True, display_color)
+            textRect = text.get_rect()
+            textRect.center = loc
+            self._canvas.blit(text, textRect)
             location[0] += color_space
             if color.cured:
                 location[1] += cure_distance

@@ -59,12 +59,15 @@ running = True
 
 
 # function to test behavior of code
-def wait_test(wait_time=4):
+def wait_test(wait_time=2):
     global board
     print("Running a small test case")
+    board._colors["red"].cured = True
+    board.cities["Bangkok"]._disease_cubes = {'blue': 0, 'yellow': 0, 'black': 0, 'red': 0}
+    # board._colors["red"].eradicate()
     for i in range(8):
         sleep(wait_time)
-        board.current_player.save_the_day()
+        board.current_player.save_the_day(wait_time=wait_time/2)
         sleep(wait_time / 2)
         board.next_player()
 

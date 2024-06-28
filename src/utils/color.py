@@ -6,13 +6,23 @@ class Color:
             self._name = color
         else:
             raise ValueError(f"Invalid color: {color}\n Valid colors are: blue, yellow, black, red.")
-        self.disease_cubes = 24
+        self._disease_cubes = 24
         self.cured = False
         self.eradicated = False
 
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def disease_cubes(self) -> int:
+        return self._disease_cubes
+
+    @disease_cubes.setter
+    def disease_cubes(self, other: int):
+        if not self.eradicated:
+            self._disease_cubes = other
+
 
     def __str__(self) -> str:
         """Return the color of the disease."""
