@@ -5,7 +5,10 @@ from .card import (Card, PlayerCard, InfectionCard, EpidemicCard, EventCard,
 from .player import (Player,
                      ContingencyPlanner, Dispatcher, Medic, OperationsExpert, QuarantineSpecialist, Researcher,
                      Scientist)
-from constants import colors, vertical_card_size, horizontal_card_size, board_size
+from constants import (colors, vertical_card_size,
+                       horizontal_card_size, board_size,
+                       get_image, radius)
+from .logger import Logger
 
 import numpy as np
 import pygame as pg
@@ -16,12 +19,11 @@ from typing import List, Tuple, Union, Dict
 from collections import deque
 from math import sin, cos
 
-pg_settings = json.load(open("configs/pygame.json", "r"))
-radius = pg_settings["city_circle_radius"]
-
+with open('./configs/pygame.json', 'r') as f:
+    pg_settings = json.load(f)
 
 class PandemicBoard:
-    def __init__(self, canvas, num_epidemics=5, num_players=3, starting_city="Atlanta", seed=None):
+    def __init__(self, num_epidemics=5, num_players=3, starting_city="Atlanta", seed=None):
         """Initialize the board for Pandemic.
         Contains all the steps of setup in the Pandemic Rules"""
 
@@ -31,18 +33,38 @@ class PandemicBoard:
         self._team_score = 0  # The score to evaluate the Reinforcement Learning model
         # TODO: Implement the score system
 
-        self._canvas = canvas
+        self._resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
+        self._background_resolution = (int(board_size * self._resolution[0]),
+                                       int(board_size * self._resolution[1]))
+
+        if pg_settings["display"] == "windowed":
+            self._canvas = pg.display.set_mode(self._resolution, pg.RESIZABLE)
+        elif pg_settings["display"] == "fullscreen":
+            self._canvas = pg.display.set_mode(self._resolution, pg.FULLSCREEN)
+        else:
+            raise Warning("Invalid display mode. Must be 'windowed' or 'fullscreen'.")
+
+        pg.init()
+        pg.display.set_caption(pg_settings["title"] + " - " + pg_settings["version"])
+
+        self._loc = (1 - board_size) / 2
+        self._background_top = int(self._loc * self._resolution[0])
+        self._background_left = int(self._loc * self._resolution[1])
+        self._last_res = self._resolution
+
+        self._table = get_image('./assets/wood_texture.jpg', self._resolution)
+        self._background = get_image('./assets/pandemic_game_board.jpg', self._background_resolution)
 
         self._colors = {"yellow": Color("yellow"), "red": Color("red"), "blue": Color("blue"), "black": Color("black")}
         self._cities: Dict[str, City] = {}
         self.create_cities(starting_city=starting_city)
 
-        self._connections: List[str, str] = []  # connections between cities
+        self._connections: List[Tuple[str, str]] = []  # connections between cities
 
         for city_name, city in self.cities.items():
             for neighbor in self.cities[city_name].neighbors:
                 order = tuple(sorted((city.name, neighbor.name)))
-                if order not in self.connections:
+                if order not in self._connections:
                     self.connections.append(order)
 
         if num_epidemics in [4, 5, 6, 7]:
@@ -209,8 +231,6 @@ class PandemicBoard:
         """Return the number of turns remaining in the game."""
         return len(self._player_deck) // 2
 
-    # --------------------------------------------GAME MECHANICS---------------------------
-
     # -------------------------------------------------METHODS----------------------------------------------------------
     # Create the game components
     def create_cities(self, starting_city: str = "Atlanta") -> None:
@@ -374,9 +394,26 @@ class PandemicBoard:
 
     # ---------------------------------------------DISPLAY METHODS------------------------------------------------------
     def draw(self):
+        self._resolution = self._canvas.get_size()
+        if self._resolution != self._last_res:
+            self._background_resolution = (int(board_size * resolution[0]), int(board_size * resolution[1]))
+            print(f"Resolution: {self._resolution}")
+            print(f"Background resolution: {self._background_resolution}")
+            self._background = get_image('assets/pandemic_game_board.jpg', self._background_resolution)
+            self._background_top = int(self._loc * resolution[0])
+            self._background_left = int(self._loc * resolution[1])
+            self._table = get_image('assets/wood_texture.jpg', self._resolution)
+            self._last_res = self._resolution
+        self._canvas.blit(self._table, (0, 0))
+        self._canvas.blit(self._background, (self._background_top, self._background_left))
+
+        # TODO: Click to view cards in discards
+
         self.display_cities()
         self.display_players()
         self.display_misc()
+
+        pg.display.update()
 
     def display_cities(self):
         city_radius = radius * board_size * (self._canvas.get_width() / 2560)
@@ -764,8 +801,6 @@ class PandemicBoard:
             textRect.center = self.on_background([deck_location[0] + (vertical_card_size[0] / 2),
                                                   deck_location[1] + (vertical_card_size[1] / 2) - 0.045])
             self._canvas.blit(text, textRect)
-
-
 
     # TODO: make locations of trackers variables
     # (cut down on calculations on a per-frame basis)

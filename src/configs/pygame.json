@@ -2,6 +2,5 @@
     "display": "windowed",
     "resolution": [1280, 720],
     "title": "pandemic",
-    "version": "0.1.0",
-    "city_circle_radius": 30
+    "version": "0.1.0"
 }

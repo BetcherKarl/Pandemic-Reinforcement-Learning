@@ -1,3 +1,10 @@
+from PIL import Image
+from typing import Tuple
+from pygame.surfarray import make_surface
+from pygame.transform import rotate
+import numpy as np
+
+
 colors = {"amber": (255, 191, 0),
           "blue": (0, 0, 255),
           "yellow": (255, 255, 0),
@@ -23,3 +30,13 @@ horizontal_card_size = (0.14, 0.14)
 vertical_card_size = (0.1, 0.2)
 
 r_seed = 42069
+
+radius = 30
+
+def get_image(path: str, resolution: Tuple[int, int]) -> Image:
+    img = Image.open(path)
+    img = img.resize(resolution)
+    img = img.transpose(Image.FLIP_LEFT_RIGHT)
+    img = make_surface(np.array(img))
+    img = rotate(img, 270)
+    return img
