@@ -5,10 +5,10 @@ from .card import (Card, PlayerCard, InfectionCard, EpidemicCard, EventCard,
 from .player import (Player,
                      ContingencyPlanner, Dispatcher, Medic, OperationsExpert, QuarantineSpecialist, Researcher,
                      Scientist)
+from .logger import Logger
 from constants import (colors, vertical_card_size,
                        horizontal_card_size, board_size,
                        get_image, radius)
-from .logger import Logger
 
 import numpy as np
 import pygame as pg
@@ -21,6 +21,8 @@ from math import sin, cos
 
 with open('./configs/pygame.json', 'r') as f:
     pg_settings = json.load(f)
+
+logger = Logger('pandemic-rl-board')
 
 class PandemicBoard:
     def __init__(self, num_epidemics=5, num_players=3, starting_city="Atlanta", seed=None):
@@ -235,6 +237,7 @@ class PandemicBoard:
     # Create the game components
     def create_cities(self, starting_city: str = "Atlanta") -> None:
         """Create the cities for the game."""
+        logger.print(f"Creating cities. {starting_city} is the starting city.")
         with open("configs/cities.json", "r", encoding='utf-8') as file:
             cities = json.load(file)
         for city in cities:
@@ -248,9 +251,11 @@ class PandemicBoard:
         # add research station to starting city
         self.cities[starting_city].has_research_station = True
 
+        logger.print(f"All cities have been created.")
+
     def create_players(self, num_players: int, starting_city="Atlanta", role=True) -> None:
         """Create the players for the game."""
-
+        logger.print(f"Creating {num_players} players")
         if role:
             roles = [ContingencyPlanner(self, starting_city), Dispatcher(self, starting_city),
                      Medic(self, starting_city), OperationsExpert(self, starting_city),
@@ -260,9 +265,11 @@ class PandemicBoard:
             self._players = roles[:num_players]
         else:
             self._players = [Player(self, starting_city=starting_city) for i in range(num_players)]
+        logger.print(f"All players have been created.")
 
     def create_infection_deck(self) -> None:
         """Create the infection deck for the game."""
+        logger.print(f"Creating infection deck")
         for city_name, city in self.cities.items():
             self._infection_deck.append(InfectionCard(self, city))
         random.shuffle(self._infection_deck)
@@ -271,16 +278,13 @@ class PandemicBoard:
         # infect the first 9 cities
         for i in range(1, 4):
             for _ in range(3):
-                card = self._infection_deck.pop()
-                city = card.city
-                color = city.color
+                self.infect_city(num_cubes=i)
 
-                city.infect(color.name, num_cubes=i)
-
-                self._infection_discard.append(card)
+        logger.print(f"Infection deck has been created.")
 
     def create_player_deck(self) -> None:
         """Create the player deck for the game."""
+        logger.print(f"Creating the player deck...")
         # Create all the city and event cards
         for city_name, city in self.cities.items():
             self._player_deck.append(CityCard(self, city))
@@ -292,12 +296,15 @@ class PandemicBoard:
         # deal the players cards
         random.shuffle(self._player_deck)
         num_cards = 6 - len(self._players)
+        logger.print(f"\tGiving cards to each player...")
         for player in self._players:
             for _ in range(num_cards):
-                player.add_to_hand(self._player_deck.pop())
+                card = self._player_deck.pop()
+                player.add_to_hand(card)
 
         # determine player order (highest population city goes first)
         random.shuffle(self._players) # for some reason some event cards tripped up sorting by highest city population
+        logger.print(f"It is {self.current_player.role}'s turn")
 
         # add the epidemic cards
         subdecks = [[EpidemicCard(self)] for _ in range(self.total_epidemics)]
@@ -311,19 +318,17 @@ class PandemicBoard:
         for deck in subdecks:
             self._player_deck += deck
         self._player_deck = deque(self._player_deck)
-
+        logger.print(f"The player deck has been created. {self._total_epidemics} epidemics are in the deck.")
     # Game mechanics
     def infect_city(self,
                     num_cubes: int = 1,
                     card: InfectionCard = None) -> None:  # TODO: Test this method for multiple outbreaks at once
         """Infect a city from the top of the infection deck."""
-        if self.quiet_night:
-            self.quiet_night = False
-            return
 
         if not card:
             card = self._infection_deck.pop()
             self._infection_discard.append(card)
+        logger.print(f"Infecting {card.city.name} with {num_cubes}")
         color = card.color
         if self._colors[color].disease_cubes < num_cubes:
             self.lose()
@@ -336,14 +341,14 @@ class PandemicBoard:
                 self.lose()
             return
 
-    def draw_player_cards(self, play: Player = None) -> None:
+    def draw_player_cards(self, player: Player = None) -> None:
         """Draw a player card from the top of the player deck."""
         if len(self._player_deck) < 2:
             self.lose()
-        if play is None:
-            player = self.current_player
+        if player is None:
+            players = self.current_player
         else:
-            player = play
+            players = player
 
         for _ in range(2):
             card = self._player_deck.pop()
@@ -351,18 +356,19 @@ class PandemicBoard:
                 self.epidemic()
                 self._player_discard.append(card)
             else:
-                print(f"Giving {player.role} card of {card.name}")
+                logger.print(f"Giving {players.role} card of {card.name}")
 
-                player.add_to_hand(card)
+                players.add_to_hand(card)
 
     def draw_infection_cards(self) -> None:
         """Draw the infections for the game."""
+        logger.print(f"Drawing infection cards")
         for _ in range(self.infection_rate):
-            self.infect_city(1)
+            self.infect_city()
 
     def epidemic(self) -> None:
         """Handle an epidemic in the game."""
-        print("Oops, an epidemic!")
+        logger.print("An epidemic was drawn.")
         # Increase
         self._epidemics_drawn += 1
 
@@ -385,35 +391,40 @@ class PandemicBoard:
 
     def lose(self):
         """Lose the game."""
+        logger.warn("Losing the game has not been implemented yet.")
+        self._team_score -= 1000
         raise NotImplementedError("Losing the game is not yet implemented.")
 
+
     def next_player(self):
+        logger.print(f"Moving to next player")
         self.draw_player_cards()
         self.draw_infection_cards()
         self._current_player = (self._current_player + 1) % len(self._players)
 
     # ---------------------------------------------DISPLAY METHODS------------------------------------------------------
-    def draw(self):
-        self._resolution = self._canvas.get_size()
-        if self._resolution != self._last_res:
-            self._background_resolution = (int(board_size * resolution[0]), int(board_size * resolution[1]))
-            print(f"Resolution: {self._resolution}")
-            print(f"Background resolution: {self._background_resolution}")
-            self._background = get_image('assets/pandemic_game_board.jpg', self._background_resolution)
-            self._background_top = int(self._loc * resolution[0])
-            self._background_left = int(self._loc * resolution[1])
-            self._table = get_image('assets/wood_texture.jpg', self._resolution)
-            self._last_res = self._resolution
-        self._canvas.blit(self._table, (0, 0))
-        self._canvas.blit(self._background, (self._background_top, self._background_left))
-
+    def render(self):
         # TODO: Click to view cards in discards
-
+        self.display_background()
         self.display_cities()
         self.display_players()
         self.display_misc()
 
         pg.display.update()
+
+    def display_background(self):
+        self._resolution = self._canvas.get_size()
+        if self._resolution != self._last_res:
+            self._background_resolution = (int(board_size * self._resolution[0]), int(board_size * self._resolution[1]))
+            print(f"Resolution: {self._resolution}")
+            print(f"Background resolution: {self._background_resolution}")
+            self._background = get_image('assets/pandemic_game_board.jpg', self._background_resolution)
+            self._background_top = int(self._loc * self._resolution[0])
+            self._background_left = int(self._loc * self._resolution[1])
+            self._table = get_image('assets/wood_texture.jpg', self._resolution)
+            self._last_res = self._resolution
+        self._canvas.blit(self._table, (0, 0))
+        self._canvas.blit(self._background, (self._background_top, self._background_left))
 
     def display_cities(self):
         city_radius = radius * board_size * (self._canvas.get_width() / 2560)
@@ -582,7 +593,7 @@ class PandemicBoard:
 
         for city, players in locations.items():
             city_position = self.on_background(self.cities[city].position)
-            player_position = [city_position[0] + (2 * player_radius) / 3, city_position[1] - (2 * player_radius) / 3]
+            player_position = [city_position[0] + (player_radius) / 3, city_position[1] - player_radius]
             for i in range(len(players)):
                 interval = player_radius
                 if i % 2 == 0:  # make sure that the players appear as a square

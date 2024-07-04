@@ -6,7 +6,7 @@ import pygame as pg
 from .board import PandemicBoard
 from .logger import Logger
 
-logger = Logger('pandemic-rl')
+logger = Logger('pandemic-rl-env')
 
 class PandemicEnvironment(gym.Env):
     def __init__(self, num_players=4):
@@ -28,7 +28,7 @@ class PandemicEnvironment(gym.Env):
         raise NotImplementedError('PandemicEnvironment.close not implemented')
 
     @property
-    def board(self):
+    def board(self) -> PandemicBoard:
         return board
 
     @board.setter

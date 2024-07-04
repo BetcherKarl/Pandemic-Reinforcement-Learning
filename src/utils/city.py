@@ -143,6 +143,7 @@ class City:
                 else:
                     print(f"Placing {num_cubes} {color} cubes on {self.name}")
                     self.disease_cubes[color] += num_cubes
+                    self.color.disease_cubes -= num_cubes
                     return 0
             else:
                 raise ValueError(f"Invalid disease color: {color}\nValid colors are: blue, yellow, black, red.")

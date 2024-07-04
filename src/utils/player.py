@@ -158,6 +158,8 @@ class Player(ABC):
                 print(f"Player {self.role} is removing all disease cubes at {self.location.name}")
                 self.location.color.disease_cubes += self.location.disease_cubes[self.location.color.name]
                 self.location.disease_cubes[self.location.color.name] = 0
+                # if self.location.color.disease_cubes == 24:
+                    # self.location.color.eradicate()
             elif self.location.disease_cubes[self.location.color.name]:
                 self.location.color.disease_cubes += 1
                 self.location.disease_cubes[self.location.color.name] -= 1

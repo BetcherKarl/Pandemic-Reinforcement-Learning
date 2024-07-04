@@ -45,7 +45,7 @@ while running:
             running = False
 
     # TODO: Click to view cards in discards
-    board.draw()
+    board.render()
 
     if len(board._player_deck) == 58 - len(board.players) * (6 - len(board.players)) - 16: # what the fuck is this
         print("Test case finished successfully")
