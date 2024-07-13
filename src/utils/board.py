@@ -5,7 +5,6 @@ from .card import (Card, PlayerCard, InfectionCard, EpidemicCard, EventCard,
 from .player import (Player,
                      ContingencyPlanner, Dispatcher, Medic, OperationsExpert, QuarantineSpecialist, Researcher,
                      Scientist)
-from .logger import Logger
 from constants import (colors, vertical_card_size,
                        horizontal_card_size, board_size,
                        get_image, radius)
@@ -18,11 +17,12 @@ import json
 from typing import List, Tuple, Union, Dict
 from collections import deque
 from math import sin, cos
+import logging
 
 with open('./configs/pygame.json', 'r') as f:
     pg_settings = json.load(f)
 
-logger = Logger('pandemic-rl-board')
+
 
 class PandemicBoard:
     def __init__(self, num_epidemics=5, num_players=3, starting_city="Atlanta", seed=None):
@@ -32,7 +32,9 @@ class PandemicBoard:
         if seed is not None:
             random.seed(seed)
 
-        self._team_score = 0  # The score to evaluate the Reinforcement Learning model
+        self._team_score = 0
+        self._turn_score = 0
+        # The score to evaluate the Reinforcement Learning model
         # TODO: Implement the score system
 
         self._resolution = (pg_settings["resolution"][0], pg_settings["resolution"][1])
@@ -395,12 +397,15 @@ class PandemicBoard:
         self._team_score -= 1000
         raise NotImplementedError("Losing the game is not yet implemented.")
 
+    def win(self):
+        raise NotImplementedError("Winning the game is not yet implemented.")
 
     def next_player(self):
         logger.print(f"Moving to next player")
         self.draw_player_cards()
         self.draw_infection_cards()
         self._current_player = (self._current_player + 1) % len(self._players)
+        self._turn_score = 0
 
     # ---------------------------------------------DISPLAY METHODS------------------------------------------------------
     def render(self):

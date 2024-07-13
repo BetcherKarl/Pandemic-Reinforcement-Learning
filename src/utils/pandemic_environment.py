@@ -4,9 +4,6 @@ import gym
 import pygame as pg
 
 from .board import PandemicBoard
-from .logger import Logger
-
-logger = Logger('pandemic-rl-env')
 
 class PandemicEnvironment(gym.Env):
     def __init__(self, num_players=4):
