@@ -5,6 +5,7 @@ import pygame as pg
 
 from .board import PandemicBoard
 
+
 class PandemicEnvironment(gym.Env):
     def __init__(self, num_players=4):
         self.board = PandemicBoard(num_players=num_players)

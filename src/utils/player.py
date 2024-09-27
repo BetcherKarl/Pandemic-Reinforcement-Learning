@@ -1,4 +1,6 @@
 """This file contains the player class fo * (board_size / 0.65)r a game of Pandemic."""
+import numpy as np
+
 from .color import Color
 from .city import City
 from .card import PlayerCard, CityCard, EventCard
@@ -137,7 +139,7 @@ class Player(ABC):
             return -2 # invalid action
             raise ValueError(f"{self.location} does not have a research station.")
 
-    def state(self) -> np.Array:
+    def state(self) -> np.array:
         city_list = board.city_list()
         state = board.state()
         i = 0
