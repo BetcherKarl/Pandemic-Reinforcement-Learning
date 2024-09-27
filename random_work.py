@@ -52,7 +52,7 @@ def main():
 
     if choice == "w":
         model_name = input("What is the filename of the model you would like to watch? ")
-        i = input("How many iterations would you like to watch? ")
+        i = int(input("How many iterations would you like to watch? "))
         watch_model(model_name, iterations=i)
 
     elif choice == "t":
@@ -74,7 +74,7 @@ def train_new_model(steps=10000):
     print(f"training complete in {time() - start:.2f}s")
 
     filename = f'CustomCartPole-{date.today()}'
-    model.save(f"./models/{filename}")
+    model.save(f".src/models/{filename}")
 
     watch_model(filename, iterations=5)
 
