@@ -1,4 +1,7 @@
 namespace pandemic {
+	#include <string>
+	using namespace std;
+
 	class Color {
 		public:
 			int key;
@@ -9,18 +12,23 @@ namespace pandemic {
 				this->cured = 0;
 			}
 
+			bool isCured() { return cured >= 1; }
+			bool isEradicated() { return cured == 2; }
+			int getDiseaseCubes() { return disease_cubes; }
+			string getName() { return name; }
+
 			void cure() {
 				if (cured == 0) {
-					set_cured(1);
+					setCured(1);
 				}
 				if (disease_cubes == 24) {
-					set_cured(2);
+					setCured(2);
 				}
 			}
 
 			void eradicate() {
-				if (cured == 1) {
-					set_cured(2);
+				if (cured == 1 && disease_cubes == 24) {
+					setCured(2);
 				}
 			}
 
@@ -44,6 +52,8 @@ namespace pandemic {
 				}
 
 				disease_cubes += num;
+
+
 				return num;
 			}
 
@@ -52,9 +62,9 @@ namespace pandemic {
 			int disease_cubes; // Number of disease cubes left for this color
 			int cured; // 0 for uncured, 1 for cured, 2 for eradicated
 
-			void set_cured(int cured) {
+			void setCured(int cured) {
 				if (cured < 0 || cured > 2) {
-					throw invalid_argument("Invalid value for cured");
+					throw invalid_argument("Invalid value cured (" + cured + ") for setCured().");
 				}
 				this->cured = cured;
 			}
